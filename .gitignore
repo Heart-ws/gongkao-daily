@@ -1,0 +1,27 @@
+# ---- 构建产物（可随时用 scripts/build_dist.py 重新生成）----
+dist/
+
+# ---- 开发期临时文件 ----
+_dev/shots/
+_dev/_sample-output.js
+_dev/_validate.py
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# ---- 编辑器 / 系统 ----
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+*~
+*.swp
+
+# ---- 本地临时文件 ----
+*.log
+*.tmp

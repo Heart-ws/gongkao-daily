@@ -1,0 +1,5 @@
+/* 可用日期清单 · 由 scripts/fetch_daily.py 自动生成 */
+window.__DATA_INDEX__ = {
+  updated: "2026-09-10",
+  dates: ["2026-09-10", "2026-09-09", "2026-09-08"]
+};

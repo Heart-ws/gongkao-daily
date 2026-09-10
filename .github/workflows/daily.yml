@@ -1,0 +1,161 @@
+name: 每日更新时政要闻
+
+# ---------------------------------------------------------------------------
+# 前置要求：仓库为 Public（私有仓库用 GitHub Pages 需要付费版）。
+#           首次运行时本工作流会自动启用 Pages，无需手动进设置页。
+#
+# 更新时点：北京时间每天 08:00
+#   北京时间 = UTC+8，所以 UTC 00:00 即北京时间 08:00。
+#   GitHub 的定时任务在整点高负载时可能排队几分钟，因此额外加了一次
+#   北京时间 08:45 的兜底重试；脚本带 --skip-if-fresh，
+#   若 08:00 那次已经成功出稿，08:45 这次会直接跳过，不会重复抓取。
+# ---------------------------------------------------------------------------
+on:
+  schedule:
+    - cron: '0 0 * * *'    # 北京时间 08:00 —— 正点更新
+    - cron: '45 0 * * *'   # 北京时间 08:45 —— 兜底重试
+  workflow_dispatch:
+    inputs:
+      date:
+        description: '目标日期（留空=今天，格式 YYYY-MM-DD）'
+        required: false
+        default: ''
+      force:
+        description: '无视 --skip-if-fresh，强制重新抓取'
+        type: boolean
+        required: false
+        default: false
+      fill:
+        description: '凑不满十条时强行填充（质量会下降，慎用）'
+        type: boolean
+        required: false
+        default: false
+
+# 允许写回仓库（提交数据文件）并发布 Pages
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+# 同一时间只跑一个，避免两次定时把数据文件写冲突
+concurrency:
+  group: gongkao-daily-update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    name: 抓取并提交当日时政
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.commit.outputs.changed }}
+    steps:
+      - name: 拉取仓库
+        uses: actions/checkout@v4
+
+      - name: 准备 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # 自检只依赖标准库，几秒内跑完；失败会立刻中断，避免发布坏数据
+      - name: 脚本自检（解析器 / 打标 / 去重 / 时效）
+        run: python scripts/fetch_daily.py --selftest
+
+      - name: 抓取当日时政要闻
+        id: fetch
+        run: |
+          ARGS=""
+          if [ -n "${{ inputs.date }}" ]; then
+            ARGS="$ARGS --date ${{ inputs.date }}"
+          fi
+          if [ "${{ inputs.force }}" != "true" ]; then
+            ARGS="$ARGS --skip-if-fresh"
+          fi
+          if [ "${{ inputs.fill }}" = "true" ]; then
+            ARGS="$ARGS --fill"
+          fi
+          echo "运行参数：$ARGS"
+          python scripts/fetch_daily.py $ARGS
+
+      - name: 校验产出（条数 / 必填字段 / manifest 一致性）
+        run: |
+          python - <<'PY'
+          import glob, os, re, sys
+          files = sorted(glob.glob('data/20*.js'))
+          assert files, 'data/ 下没有任何日期文件'
+          bad = []
+          for p in files:
+              src = open(p, encoding='utf-8').read()
+              d = os.path.basename(p)[:-3]
+              n = src.count('    title:')
+              for field in ('title:', 'summary:', 'source:', 'tag:'):
+                  if field not in src:
+                      bad.append('%s 缺少字段 %s' % (d, field))
+              if n == 0:
+                  bad.append('%s 一条内容都没有' % d)
+              if 'undefined' in src or 'null,' in src:
+                  bad.append('%s 出现了 undefined/null' % d)
+              print('%-14s %2d 条' % (d, n))
+          man = open('data/manifest.js', encoding='utf-8').read()
+          dates = set(re.findall(r'"(\d{4}-\d{2}-\d{2})"', man))
+          on_disk = {os.path.basename(f)[:-3] for f in files}
+          if dates != on_disk:
+              bad.append('manifest 与磁盘文件不一致：%s' % (on_disk ^ dates))
+          print('manifest 共 %d 期' % len(dates))
+          if bad:
+              print('\n'.join('❌ ' + b for b in bad)); sys.exit(1)
+          print('✅ 产出校验通过')
+          PY
+
+      - name: 提交数据文件
+        id: commit
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/
+          if git diff --staged --quiet; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "数据无变化，跳过提交。"
+          else
+            git commit -m "chore(data): 更新时政要闻 $(TZ=Asia/Shanghai date +%F)"
+            git push
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "已提交并推送。"
+          fi
+
+      # 保存一份产物，便于在 Actions 页面直接下载查看
+      - name: 归档本次产出
+        uses: actions/upload-artifact@v4
+        with:
+          name: daily-data
+          path: data/
+          retention-days: 14
+
+  deploy:
+    name: 发布到 GitHub Pages
+    needs: update
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: 拉取仓库（含刚提交的数据）
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      # enablement: true —— 首次运行时自动为仓库启用 Pages（build_type=workflow），
+      # 省去「进仓库设置页手动打开 Pages」这一步。
+      - name: 配置 Pages（首次运行会自动启用）
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: 打包站点
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - name: 部署
+        id: deployment
+        uses: actions/deploy-pages@v4

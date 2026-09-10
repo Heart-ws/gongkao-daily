@@ -60,6 +60,7 @@ gongkao-daily/
 ├── scripts/
 │   ├── fetch_daily.py            ← 抓取 + 冲洗 + 产出数据文件
 │   ├── build_dist.py             ← 打包出干净的 dist/（发布用）
+│   ├── push_to_github.sh         ← 一键推送到 GitHub 并触发自动部署
 │   └── make_icons.py             ← 重新生成图标
 │
 ├── dist/                         ← 【自动生成】可发布版本，只含线上需要的 12 个文件
@@ -186,31 +187,44 @@ on:
 
 ---
 
-## 六、部署到 GitHub Pages（含 Git 零基础步骤）
+## 六、部署到 GitHub Pages（每天 8 点自动更新）
+
+本地仓库**已初始化并完成首次提交**，远程也配好了（`origin` → `git@github.com:Heart-ws/gongkao-daily.git`），
+所以只剩两步。
+
+**第 1 步：在浏览器里创建一个空仓库**
+
+打开 <https://github.com/new?name=gongkao-daily&visibility=public>
+
+- Repository name 填 `gongkao-daily`
+- 选 **Public**（私有仓库用 Pages 需要付费版）
+- ⚠️ **不要**勾选 "Add a README file" / ".gitignore" / "license" —— 必须是完全空的仓库，否则推送会冲突
+
+**第 2 步：推送**
 
 ```bash
-# 1. 在项目目录初始化并推到 GitHub（仓库名随意，如 gongkao-daily）
-git init
-git add .
-git commit -m "feat: 公考日报首次上线"
-git branch -M main
-git remote add origin git@github.com:Heart-ws/gongkao-daily.git
-git push -u origin main
+bash scripts/push_to_github.sh
 ```
 
-```bash
-# 2. 到 GitHub 网页端：Settings → Pages
-#    Source 选 "GitHub Actions"（不要选 Deploy from a branch）
-```
+脚本会自己检查 SSH 通不通、远程仓库存不存在，再推送并打印站点地址。
+换过仓库名就加个参数：`bash scripts/push_to_github.sh 你的仓库名`
 
-```bash
-# 3. 到 Actions 页面，手动点一次 "每日更新时政要闻" → Run workflow
-#    跑完会给出形如 https://heart-ws.github.io/gongkao-daily/ 的地址
-```
+**然后就完事了。** 推上去之后：
 
-之后每天北京时间 08:00 就会自动更新，无需干预。
+1. GitHub Actions 自动开始运行，约 1—2 分钟出结果
+2. **首次运行会自动启用 GitHub Pages**（工作流里 `configure-pages` 带了 `enablement: true`，不用进设置页手动开）
+3. 站点地址：`https://heart-ws.github.io/gongkao-daily/`
+4. 之后每天**北京时间 08:00** 自动抓取并更新，另有 08:45 兜底重试
 
-> ⚠️ 如果仓库设为 **Private**，GitHub Pages 需要付费版才能公开发布。备考自用建议直接建 **Public** 仓库。
+想立刻跑一次：仓库页 → **Actions** → 左侧「每日更新时政要闻」→ **Run workflow**。
+
+> ⚠️ 如果仓库设为 **Private**，GitHub Pages 需要付费版才能公开发布。备考自用直接建 **Public**。
+
+### 与已有站点的部署方式对比
+
+你原来的 `japan-power-futures` 走的是「Actions 抓取 → 提交 → **Netlify** 部署」。
+本站改用 **GitHub Pages**：不需要第三个账号，Pages 也能由 Actions 直接发布。
+两者共同点是「云端 Runner 独立运行、无需本机开机、无需任何密钥」。
 
 ---
 

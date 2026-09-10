@@ -228,7 +228,7 @@ bash scripts/push_to_github.sh
 
 **然后就完事了。** 推上去之后：
 
-1. GitHub Actions 自动开始运行，约 1—2 分钟出结果
+1. GitHub Actions 会因为这次推送**立刻**开始运行（工作流配了 `push` 触发，不用等到第二天早上 8 点），约 1—2 分钟出结果
 2. **首次运行会自动启用 GitHub Pages**（工作流里 `configure-pages` 带了 `enablement: true`，不用进设置页手动开）
 3. 站点地址：`https://heart-ws.github.io/gongkao-daily/`
 4. 之后每天**北京时间上午 8 点**自动抓取并更新（08:02 主更新 + 08:32 兜底重试）

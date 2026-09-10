@@ -23,6 +23,17 @@ on:
       timezone: 'Asia/Shanghai'
     - cron: '32 8 * * *'       # 北京时间 08:32 —— 兜底重试
       timezone: 'Asia/Shanghai'
+
+  # 推送到 main 时也跑一次：这样首次推送、或改了页面之后不用等到第二天早上。
+  # 用 paths-ignore 排除 data/，避免「提交数据 → 触发工作流 → 又提交数据」的循环。
+  # （实际上机器人用 GITHUB_TOKEN 提交的推送本来就不会触发工作流，这里是双保险。）
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'data/**'
+      - '**.md'
+      - '.gitignore'
+
   workflow_dispatch:
     inputs:
       date:

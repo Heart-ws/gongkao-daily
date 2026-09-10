@@ -2,7 +2,7 @@
 
 一个给自己用的备考小站：**每天 10 条时政要闻 + 10 条公考常识**，逐条阅读、逐条背诵、可收藏、可导出、可离线。
 
-页面是一份**零外部依赖的单文件应用**（`index.html`），双击就能打开，也能装到手机主屏当 App 用。内容通过 `data/` 目录下的数据文件注入，由 GitHub Actions **每天北京时间 08:00** 自动更新并发布。
+页面是一份**零外部依赖的单文件应用**（`index.html`），双击就能打开，也能装到手机主屏当 App 用。内容通过 `data/` 目录下的数据文件注入，由 GitHub Actions **每天北京时间上午 8 点前后**自动更新并发布。
 
 ---
 
@@ -64,7 +64,7 @@ gongkao-daily/
 │   └── make_icons.py             ← 重新生成图标
 │
 ├── dist/                         ← 【自动生成】可发布版本，只含线上需要的 12 个文件
-├── .github/workflows/daily.yml   ← 每天 08:00 定时任务 + 发布 Pages
+├── .github/workflows/daily.yml   ← 每天上午 8 点定时任务 + 发布 Pages
 └── _dev/                         ← 开发脚手架（不参与线上运行）
     ├── _test.js                  ← 前端逻辑无头回归测试（76 项）
     ├── _validate.py              ← 产出校验脚本（与工作流内一致）
@@ -90,7 +90,7 @@ gongkao-daily/
 这些是图片新闻和商业软文，对公考毫无价值。所以本项目采用的流程是 **自动抓取做初筛、人工用 5 分钟定稿**（和你现有日本电力期货站点「半自动更新」的做法一致）：
 
 ```
-08:00  GitHub Actions 自动跑 scripts/fetch_daily.py
+08:02  GitHub Actions 自动跑 scripts/fetch_daily.py
          ├─ 多源抓取（中新网 / 中国政府网 / 新华网 / 央视新闻…）
          ├─ 时政相关性打分（4 分门槛）→ 剔除非遗、风光、展会花絮等
          ├─ 时效过滤（默认丢弃超过 3 天的旧闻）
@@ -141,16 +141,33 @@ gongkao-daily/
 
 ## 四、更新机制：每天上午八点是怎么实现的
 
-时区换算是关键：**北京时间 = UTC+8**，所以 UTC `00:00` 就是北京时间 `08:00`。
-
 ```yaml
 on:
   schedule:
-    - cron: '0 0 * * *'    # 北京时间 08:00 正点
-    - cron: '45 0 * * *'   # 北京时间 08:45 兜底重试
+    - cron: '2 8 * * *'        # 北京时间 08:02 —— 主更新
+      timezone: 'Asia/Shanghai'
+    - cron: '32 8 * * *'       # 北京时间 08:32 —— 兜底重试
+      timezone: 'Asia/Shanghai'
 ```
 
-- GitHub 的定时任务在整点高负载时可能排队几分钟，所以加了 08:45 的兜底重试。脚本带 `--skip-if-fresh`，08:00 那次成功了，08:45 就会直接跳过，不会重复抓取。
+**① 直接写北京时间，不用算 UTC。** GitHub 现已支持在 `cron` 旁加 `timezone` 字段（IANA 时区名），
+所以不必再手工做 UTC+8 换算。历史上必须写 UTC，很多人的定时任务就是错在这里。
+
+**② 刻意避开整点（写 08:02 而不是 08:00）。** GitHub 官方文档原文：
+
+> The `schedule` event can be delayed during periods of high loads of GitHub Actions workflow runs.
+> High load times include the start of every hour. If the load is sufficiently high enough,
+> some queued jobs may be dropped.
+
+也就是说整点是全球任务最拥挤的时刻，任务不仅会被延迟，**极端情况下会被直接丢弃**。
+往后挪两分钟能显著降低这个风险。
+
+**③ 兜底重试。** 脚本带 `--skip-if-fresh`：08:02 那次成功了，08:32 这次会直接跳过，不会重复抓取。
+
+**④ 关于「60 天不活动会被自动停用」。** GitHub 官方规则是：公共仓库若 60 天内无任何仓库活动，
+定时工作流会被自动禁用。本项目**天然免疫**——工作流每天都会把新一期数据提交回仓库，
+这个提交本身就是仓库活动，计时器每天都在重置。万一将来真的停了（例如你连续两个月没动过仓库），
+到仓库的 Actions 页面点一下 **Enable workflow** 即可恢复。
 - 每次运行都会先跑**脚本自检**，再做**产出校验**（条数、必填字段、`manifest` 与磁盘文件一致性），任何一步失败都不会发布坏数据。
 - **页面侧也会自检**：打开时会拉一次 `data/manifest.js`（`cache-control: no-store`），发现新一期就自动加载；切换回标签页时也会再查一次。若当天数据还没生成，页面顶部会出现黄色提示条和「立即检查更新」按钮。
 - 想立刻手动更新：仓库 **Actions → 每日更新时政要闻 → Run workflow**，还能临时指定日期、强制重抓。
@@ -187,7 +204,7 @@ on:
 
 ---
 
-## 六、部署到 GitHub Pages（每天 8 点自动更新）
+## 六、部署到 GitHub Pages（每天上午 8 点自动更新）
 
 本地仓库**已初始化并完成首次提交**，远程也配好了（`origin` → `git@github.com:Heart-ws/gongkao-daily.git`），
 所以只剩两步。
@@ -214,7 +231,7 @@ bash scripts/push_to_github.sh
 1. GitHub Actions 自动开始运行，约 1—2 分钟出结果
 2. **首次运行会自动启用 GitHub Pages**（工作流里 `configure-pages` 带了 `enablement: true`，不用进设置页手动开）
 3. 站点地址：`https://heart-ws.github.io/gongkao-daily/`
-4. 之后每天**北京时间 08:00** 自动抓取并更新，另有 08:45 兜底重试
+4. 之后每天**北京时间上午 8 点**自动抓取并更新（08:02 主更新 + 08:32 兜底重试）
 
 想立刻跑一次：仓库页 → **Actions** → 左侧「每日更新时政要闻」→ **Run workflow**。
 

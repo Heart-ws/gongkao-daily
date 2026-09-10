@@ -396,7 +396,7 @@ footer b{color:var(--ink-2)}
         <p>
           <b>时政要闻</b>：由 <span class="kbd">scripts/fetch_daily.py</span> 每日自动抓取新华社、人民日报、中国政府网、央视新闻等权威来源，生成 <span class="kbd">data/日期.js</span>；抓取失败时可人工在 <span class="kbd">data/manual/日期.json</span> 中补录，保证不断更。<br>
           <b>公考常识</b>：来自人工维护的固定题库 <span class="kbd">data/facts-pool.js</span>，按天自动轮换 10 条，考点不随时间失效，无需联网更新。<br>
-          <b>更新时点</b>：通过 GitHub Actions 定时任务，每天北京时间 <b>08:00</b> 抓取并发布；页面打开时会自动检查是否有更新。
+          <b>更新时点</b>：通过 GitHub Actions 定时任务，每天北京时间 <b>上午 8 点前后</b>自动抓取并发布；页面打开时会自动检查是否有更新。
         </p>
       </div>
 
@@ -431,7 +431,7 @@ footer b{color:var(--ink-2)}
  * ================================================================ */
 var KEY = 'gk_daily_v1';
 var ANCHOR = '2026-01-01';      // 轮换周期起点（固定不变，保证每日取题稳定）
-var AUTO_HOUR = 8;              // 每日自动更新时点（北京时间 08:00）
+var AUTO_HOUR = 8;              // 每日自动更新时点（北京时间上午 8 点）
 var CAP_PER_CAT = 3;            // 每日常识中同一分类最多几条
 
 var CAT_STYLE = {
@@ -785,7 +785,7 @@ function renderBadge() {
     el.innerHTML = '<span>今日尚未更新 · 最新 <b>' + latest.slice(5).replace('-', '/') + '</b></span>';
   } else {
     el.className = 'badge warn';
-    el.innerHTML = '<span>' + AUTO_HOUR + ':00 自动更新 · 最新 <b>' + latest.slice(5).replace('-', '/') + '</b></span>';
+    el.innerHTML = '<span>上午 ' + AUTO_HOUR + ' 点自动更新 · 最新 <b>' + latest.slice(5).replace('-', '/') + '</b></span>';
   }
 }
 
@@ -837,7 +837,7 @@ function renderNews() {
   }
   $('#noticeNews').innerHTML = needUpdateNotice(TODAY, DATES[0], new Date())
     ? '<div class="notice"><div><b>今日（' + cnDate(TODAY) + '）的时政数据尚未生成。</b>当前展示的是 ' + cnDate(curDate) +
-      ' 的内容。定时任务每天北京时间 ' + AUTO_HOUR + ':00 运行，若长时间未更新，可先手动阅读本期。<div><button class="btn" id="recheck">立即检查更新</button></div></div></div>'
+      ' 的内容。定时任务每天北京时间上午 ' + AUTO_HOUR + ' 点运行，若长时间未更新，可先手动阅读本期。<div><button class="btn" id="recheck">立即检查更新</button></div></div></div>'
     : '';
 
   host.innerHTML = list.map(function (n, i) {
@@ -935,7 +935,7 @@ function renderFav() {
 /* ---------- 归档 ---------- */
 function renderArch() {
   var host = $('#archList');
-  $('#archNote').innerHTML = '系统每天北京时间 <b>' + AUTO_HOUR + ':00</b> 生成新一期，历史期数永久保留，' +
+  $('#archNote').innerHTML = '系统每天北京时间上午 <b>' + AUTO_HOUR + ' 点</b>生成新一期，历史期数永久保留，' +
     '随时可回看往期时政与常识。当前共 <b>' + DATES.length + '</b> 期。';
   if (!DATES.length) {
     host.innerHTML = '<div class="empty"><div class="big">[ ]</div><h3>暂无归档</h3><p>data/manifest.js 中还没有可用日期。</p></div>';

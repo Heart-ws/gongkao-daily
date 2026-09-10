@@ -1,8 +1,13 @@
 name: 每日更新时政要闻
 
 # ---------------------------------------------------------------------------
-# 前置要求：仓库为 Public（私有仓库用 GitHub Pages 需要付费版）。
-#           首次运行时本工作流会自动启用 Pages，无需手动进设置页。
+# 前置要求：
+#   ① 仓库为 Public（私有仓库用 GitHub Pages 需要付费版）。
+#   ② 需在仓库设置里手动开启一次 Pages：Settings → Pages →
+#      Build and deployment → Source 选「GitHub Actions」。
+#      这一步无法自动化：创建 Pages 站点属仓库管理操作，Actions 自带的
+#      GITHUB_TOKEN 在设计上就没有该权限（与 permissions: 无关）。
+#      开启一次后，之后所有部署都由默认令牌自动完成。
 #
 # 更新时点：北京时间每天 08:02（另有 08:32 兜底重试）
 #
@@ -175,12 +180,26 @@ jobs:
       - name: 构建发布目录 dist/
         run: python scripts/build_dist.py
 
-      # enablement: true —— 首次运行时自动为仓库启用 Pages（build_type=workflow），
-      # 省去「进仓库设置页手动打开 Pages」这一步。
-      - name: 配置 Pages（首次运行会自动启用）
+      # 说明：GitHub 出于安全设计，Actions 自带的 GITHUB_TOKEN **永远**没有「创建 Pages 站点」
+      # 这一仓库管理权限（不管 permissions: 里写什么），所以 configure-pages 的
+      # enablement: true 在这里必然失败。Pages 只能由人在设置页开启一次，之后永久生效。
+      # 这里故意用 continue-on-error，把失败转成一条能看懂的指引，而不是抛一个莫名的错。
+      - name: 配置 Pages
+        id: cfg
         uses: actions/configure-pages@v5
-        with:
-          enablement: true
+        continue-on-error: true
+
+      - name: Pages 未启用时给出明确指引
+        if: steps.cfg.outcome != 'success'
+        run: |
+          echo "::error title=需要手动开启 GitHub Pages::请到仓库 Settings → Pages → Build and deployment → Source 选择「GitHub Actions」并保存，然后重新运行本工作流。"
+          echo ""
+          echo "为什么必须手动做这一次？"
+          echo "  GitHub 不允许 Actions 自带的 GITHUB_TOKEN 执行「创建 Pages 站点」这类仓库管理操作，"
+          echo "  这是刻意的安全边界。开启一次之后，后续所有部署都会用默认令牌自动完成。"
+          echo ""
+          echo "开启入口：https://github.com/${{ github.repository }}/settings/pages"
+          exit 1
 
       - name: 打包站点
         uses: actions/upload-pages-artifact@v3

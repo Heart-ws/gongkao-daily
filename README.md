@@ -226,14 +226,31 @@ bash scripts/push_to_github.sh
 脚本会自己检查 SSH 通不通、远程仓库存不存在，再推送并打印站点地址。
 换过仓库名就加个参数：`bash scripts/push_to_github.sh 你的仓库名`
 
-**然后就完事了。** 推上去之后：
+**第 3 步：开启 GitHub Pages（只需做一次）**
 
-1. GitHub Actions 会因为这次推送**立刻**开始运行（工作流配了 `push` 触发，不用等到第二天早上 8 点），约 1—2 分钟出结果
-2. **首次运行会自动启用 GitHub Pages**（工作流里 `configure-pages` 带了 `enablement: true`，不用进设置页手动开）
-3. 站点地址：`https://heart-ws.github.io/gongkao-daily/`
-4. 之后每天**北京时间上午 8 点**自动抓取并更新（08:02 主更新 + 08:32 兜底重试）
+推上去后第一次运行会在「配置 Pages」这步失败，这是**预期内的**——不要慌。
 
-想立刻跑一次：仓库页 → **Actions** → 左侧「每日更新时政要闻」→ **Run workflow**。
+打开 <https://github.com/Heart-ws/gongkao-daily/settings/pages>
+
+- **Build and deployment → Source** 选 **`GitHub Actions`**（不要选 Deploy from a branch）
+- 点 **Save**
+
+> **为什么这一步不能自动化？** 创建 Pages 站点属于「仓库管理」级操作。
+> GitHub 出于安全考虑，让 Actions 自带的 `GITHUB_TOKEN` **永远**没有这个权限——
+> 与工作流里 `permissions:` 怎么写无关。所以 `configure-pages` 的 `enablement: true`
+> 在普通仓库里必然失败。**只有用个人访问令牌（PAT）或 GitHub App 令牌才能自动化**，
+> 为这一个动作去配 PAT 不值得。手动开一次，之后永久生效。
+
+**第 4 步：重新跑一次工作流**
+
+开启 Pages 后，回到 <https://github.com/Heart-ws/gongkao-daily/actions>，
+打开那条失败的运行记录，点右上角 **Re-run all jobs**。
+
+约 1—2 分钟后就完事了：
+
+1. 站点地址：`https://heart-ws.github.io/gongkao-daily/`
+2. 之后每天**北京时间上午 8 点**自动抓取并更新（08:02 主更新 + 08:32 兜底重试）
+3. 以后你改了页面推送上去，也会立刻自动重新部署
 
 > ⚠️ 如果仓库设为 **Private**，GitHub Pages 需要付费版才能公开发布。备考自用直接建 **Public**。
 

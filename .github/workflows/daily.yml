@@ -139,10 +139,21 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      # 重新检出分支最新提交，确保拿到 update 任务刚推上去的那一期数据
       - name: 拉取仓库（含刚提交的数据）
         uses: actions/checkout@v4
         with:
           ref: ${{ github.ref_name }}
+
+      - name: 准备 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # 只把线上需要的 12 个文件挑出来发布，开发脚手架不进 Pages 产物。
+      # 同时会跑两项发布前校验：index.html 不能有外链、manifest 日期必须有对应文件。
+      - name: 构建发布目录 dist/
+        run: python scripts/build_dist.py
 
       # enablement: true —— 首次运行时自动为仓库启用 Pages（build_type=workflow），
       # 省去「进仓库设置页手动打开 Pages」这一步。
@@ -154,7 +165,7 @@ jobs:
       - name: 打包站点
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: dist
 
       - name: 部署
         id: deployment

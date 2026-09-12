@@ -63,7 +63,8 @@ gongkao-daily/
 │   ├── push_to_github.sh         ← 一键推送到 GitHub 并触发自动部署
 │   └── make_icons.py             ← 重新生成图标
 │
-├── dist/                         ← 【自动生成】可发布版本，只含线上需要的 12 个文件
+├── dist/                         ← 【自动生成】可发布版本，只含线上需要的文件
+│   （由 build_dist.py 生成，并被 git 忽略；CI 里现场构建后推到 gh-pages 分支）
 ├── .github/workflows/daily.yml   ← 每天上午 8 点定时任务 + 发布 Pages
 └── _dev/                         ← 开发脚手架（不参与线上运行）
     ├── _test.js                  ← 前端逻辑无头回归测试（76 项）
@@ -226,31 +227,21 @@ bash scripts/push_to_github.sh
 脚本会自己检查 SSH 通不通、远程仓库存不存在，再推送并打印站点地址。
 换过仓库名就加个参数：`bash scripts/push_to_github.sh 你的仓库名`
 
-**第 3 步：开启 GitHub Pages（只需做一次）**
+**然后就完事了。**
 
-推上去后第一次运行会在「配置 Pages」这步失败，这是**预期内的**——不要慌。
-
-打开 <https://github.com/Heart-ws/gongkao-daily/settings/pages>
-
-- **Build and deployment → Source** 选 **`GitHub Actions`**（不要选 Deploy from a branch）
-- 点 **Save**
-
-> **为什么这一步不能自动化？** 创建 Pages 站点属于「仓库管理」级操作。
-> GitHub 出于安全考虑，让 Actions 自带的 `GITHUB_TOKEN` **永远**没有这个权限——
-> 与工作流里 `permissions:` 怎么写无关。所以 `configure-pages` 的 `enablement: true`
-> 在普通仓库里必然失败。**只有用个人访问令牌（PAT）或 GitHub App 令牌才能自动化**，
-> 为这一个动作去配 PAT 不值得。手动开一次，之后永久生效。
-
-**第 4 步：重新跑一次工作流**
-
-开启 Pages 后，回到 <https://github.com/Heart-ws/gongkao-daily/actions>，
-打开那条失败的运行记录，点右上角 **Re-run all jobs**。
-
-约 1—2 分钟后就完事了：
+推上去之后 GitHub Actions 会立刻运行（工作流配了 `push` 触发，不用等到第二天早上）：
 
 1. 站点地址：`https://heart-ws.github.io/gongkao-daily/`
 2. 之后每天**北京时间上午 8 点**自动抓取并更新（08:02 主更新 + 08:32 兜底重试）
 3. 以后你改了页面推送上去，也会立刻自动重新部署
+
+> **不需要你进设置页开 Pages。** 发布走的是「把构建结果推到 `gh-pages` 分支」这条路，
+> 公共仓库在首次推送该分支时 GitHub 会自动启用 Pages。这条路径只需要 `contents: write`，
+> 是纯 git 操作、零配置。
+>
+> 早期版本曾用 `actions/deploy-pages`，它要求仓库 Pages 设置为 `build_type=workflow`——
+> 而修改该设置属于**仓库管理操作**，Actions 自带的 `GITHUB_TOKEN` 在设计上永远没有这个权限
+> （与 `permissions:` 怎么配无关），必须人工进设置页开一次。换掉它就是为了消掉这个人工环节。
 
 > ⚠️ 如果仓库设为 **Private**，GitHub Pages 需要付费版才能公开发布。备考自用直接建 **Public**。
 

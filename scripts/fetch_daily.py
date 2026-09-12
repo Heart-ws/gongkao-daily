@@ -100,8 +100,13 @@ SCORE_POSITIVE = [
 SCORE_NEGATIVE = [
     (5, ["组图", "图集", "掠影", "镜头", "美景", "风光", "花海", "梯田", "秋色", "雪景",
          "打卡", "花絮", "走红", "亮相", "引人关注", "传承人", "技艺", "非遗", "手作",
-         "美食", "采摘", "萌宠", "趣闻", "奇观", "潮汐树", "摄影", "画来", "入画"]),
-    (3, ["图片", "视觉", "影像", "直播回放"]),
+         "美食", "采摘", "萌宠", "趣闻", "奇观", "潮汐树", "摄影", "画来", "入画",
+         # 健康养生 / 生活消费 / 情感类，实测会从综合新闻源混进来
+         "养生", "进补", "秋燥", "春困", "祛湿", "食补", "护肝", "养肝", "伤肝",
+         "调理", "防止脱发", "失眠", "减肥", "减脂", "瘦身", "穿搭", "婆媳",
+         "星座", "属相", "家常菜", "食谱", "小妙招", "别乱", "这样吃",
+         "生活费", "好物推荐", "种草", "攻略"]),
+    (3, ["图片", "视觉", "影像", "直播回放", "误区", "警惕", "提醒", "请注意", "别踩坑"]),
 ]
 # 形如「广西三江侗乡：梯田染金入画来」的地名+图说式标题，基本是图片新闻
 PHOTO_TITLE_RE = re.compile(r"^[\u4e00-\u9fff]{2,10}[：:].{0,30}(来|美|景|图|画|色)$")
@@ -357,6 +362,8 @@ SOURCE_BASE = {
 # 你可以随时运行 `python scripts/fetch_daily.py --source-check` 重新体检后调整本列表。
 SOURCES = [
     ("中国新闻网", "https://www.chinanews.com.cn/rss/scroll-news.xml", parse_rss, 10),
+    ("中新网·国内", "https://www.chinanews.com.cn/rss/china.xml", parse_rss, 12),
+    ("中新网·要闻", "https://www.chinanews.com.cn/rss/importnews.xml", parse_rss, 14),
     ("中国政府网", "https://www.gov.cn/yaowen/liebiao/", parse_gov_list, 20),
     ("最新政策", "https://www.gov.cn/zhengce/zuixin/", parse_gov_list, 25),
     ("新华网", "https://www.news.cn/politics/news_politics.xml", parse_rss, 40),
@@ -655,6 +662,8 @@ def selftest() -> int:
     check("非遗手作被扣分", score_item("麦秆剪贴技艺省级代表性传承人李宝霞：赋予方寸麦秆万千气象") <= 0)
     check("风光图片新闻被扣分", score_item("广西三江侗乡：梯田染金入画来") <= 0)
     check("展会花絮被扣分", score_item("浙江杭州：“AI Show”引人关注") <= 0)
+    check("健康养生类被扣分", score_item("秋燥分两种，很多人都补反了，越补燥感越重！") <= 0)
+    check("生活消费类被扣分", score_item("大学生活费怎么给？谈“钱”之前，先谈“生活”") <= 0)
     mixed = [{"title": "习近平同英国首相通电话", "_w": 30, "summary": "", "pub": today},
              {"title": "广西三江侗乡：梯田染金入画来", "_w": 10, "summary": "", "pub": today}]
     pm, _x, _y = rank_and_pick(mixed, 1, 3, today, 4)

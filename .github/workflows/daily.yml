@@ -160,9 +160,11 @@ jobs:
     name: 发布到 GitHub Pages
     needs: update
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
+    # 注意：这里**不要**声明 environment: github-pages。
+    # 当仓库的 Pages 以 gh-pages 分支为发布源时，GitHub 会把该环境的
+    # 部署分支策略锁成 gh-pages；而本任务运行在 main 上，声明它会导致
+    # 任务在启动阶段就被拒绝（表现为「0 个步骤、2 秒内失败」）。
+    # 发布本身由推送 gh-pages 分支完成，不需要 environment。
     steps:
       # 重新检出分支最新提交，确保拿到 update 任务刚推上去的那一期数据
       - name: 拉取仓库（含刚提交的数据）

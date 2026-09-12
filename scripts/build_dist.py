@@ -14,6 +14,7 @@ from __future__ import annotations
 import argparse
 import glob
 import os
+import re
 import shutil
 import sys
 
@@ -60,12 +61,15 @@ def build(out_root: str) -> int:
                 copied += 1
                 print("  + %s/%s" % (d, name))
 
+    # .nojekyll：告诉 GitHub Pages 不要用 Jekyll 处理本站。
+    # 不加的话，以「_」开头的文件/目录会被 Jekyll 直接忽略掉。
+    open(os.path.join(out_root, ".nojekyll"), "w").close()
+    print("  + .nojekyll")
+
     # 关键校验：线上版本不能有任何 http(s) 外部引用，否则 file:// 与离线都会退化
     html = open(os.path.join(out_root, "index.html"), encoding="utf-8").read()
-    import re
-    ext = re.findall(r'(?:src|href)\s*=\s*["\']https?://', html)
-    if ext:
-        print("\n❌ index.html 中仍存在 %d 处外部引用，请先清理。" % len(ext))
+    if re.search(r'(?:src|href)\s*=\s*["\']https?://', html):
+        print("\n❌ index.html 中仍存在外部 http(s) 引用，请先清理。")
         return 1
 
     # 关键校验：manifest 里的日期必须都在 dist 里真实存在
@@ -75,6 +79,11 @@ def build(out_root: str) -> int:
     missing = [d for d in dates if not os.path.exists(os.path.join(out_root, "data", d + ".js"))]
     if missing:
         print("\n❌ manifest 里这些日期缺少对应数据文件：%s" % ", ".join(missing))
+        return 1
+
+    # 关键校验：站点根目录必须有 index.html（Pages 靠它当入口）
+    if not os.path.exists(os.path.join(out_root, "index.html")):
+        print("\n❌ dist 根目录缺少 index.html。")
         return 1
 
     total = sum(os.path.getsize(os.path.join(dp, f))

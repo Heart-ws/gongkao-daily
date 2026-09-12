@@ -1,13 +1,13 @@
 name: 每日更新时政要闻
 
 # ---------------------------------------------------------------------------
-# 前置要求：
-#   ① 仓库为 Public（私有仓库用 GitHub Pages 需要付费版）。
-#   ② 需在仓库设置里手动开启一次 Pages：Settings → Pages →
-#      Build and deployment → Source 选「GitHub Actions」。
-#      这一步无法自动化：创建 Pages 站点属仓库管理操作，Actions 自带的
-#      GITHUB_TOKEN 在设计上就没有该权限（与 permissions: 无关）。
-#      开启一次后，之后所有部署都由默认令牌自动完成。
+# 发布方式：把构建好的 dist/ 推到 gh-pages 分支，由 GitHub Pages 直接发布。
+# 采用这种方式的原因：它只需要 contents: write，是纯 git 操作、零配置；
+# 而 actions/deploy-pages 走的是 Pages API，要求仓库 Pages 设置为 build_type=workflow，
+# 修改该设置属仓库管理操作，Actions 自带的 GITHUB_TOKEN 没有权限，必须人工进设置页开。
+#
+# 前置要求：仓库为 Public（私有仓库用 GitHub Pages 需要付费版）。
+#           公共仓库首次推送 gh-pages 分支时，GitHub 会自动启用 Pages。
 #
 # 更新时点：北京时间每天 08:02（另有 08:32 兜底重试）
 #
@@ -57,10 +57,10 @@ on:
         default: false
 
 # 允许写回仓库（提交数据文件）并发布 Pages
+# 只需要 contents: write —— 提交数据 + 推送 gh-pages 分支都是普通 git 操作。
+# 不需要 pages: write / id-token: write，因为本工作流不走 Pages API 部署。
 permissions:
   contents: write
-  pages: write
-  id-token: write
 
 # 同一时间只跑一个，避免两次定时把数据文件写冲突
 concurrency:
@@ -162,7 +162,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
     steps:
       # 重新检出分支最新提交，确保拿到 update 任务刚推上去的那一期数据
       - name: 拉取仓库（含刚提交的数据）
@@ -175,37 +175,25 @@ jobs:
         with:
           python-version: '3.12'
 
-      # 只把线上需要的 12 个文件挑出来发布，开发脚手架不进 Pages 产物。
-      # 同时会跑两项发布前校验：index.html 不能有外链、manifest 日期必须有对应文件。
+      # 只把线上需要的文件挑出来发布，开发脚手架不进产物。
+      # 同时跑三项发布前校验：无外链、manifest 日期有对应文件、根目录有 index.html。
       - name: 构建发布目录 dist/
         run: python scripts/build_dist.py
 
-      # 说明：GitHub 出于安全设计，Actions 自带的 GITHUB_TOKEN **永远**没有「创建 Pages 站点」
-      # 这一仓库管理权限（不管 permissions: 里写什么），所以 configure-pages 的
-      # enablement: true 在这里必然失败。Pages 只能由人在设置页开启一次，之后永久生效。
-      # 这里故意用 continue-on-error，把失败转成一条能看懂的指引，而不是抛一个莫名的错。
-      - name: 配置 Pages
-        id: cfg
-        uses: actions/configure-pages@v5
-        continue-on-error: true
-
-      - name: Pages 未启用时给出明确指引
-        if: steps.cfg.outcome != 'success'
-        run: |
-          echo "::error title=需要手动开启 GitHub Pages::请到仓库 Settings → Pages → Build and deployment → Source 选择「GitHub Actions」并保存，然后重新运行本工作流。"
-          echo ""
-          echo "为什么必须手动做这一次？"
-          echo "  GitHub 不允许 Actions 自带的 GITHUB_TOKEN 执行「创建 Pages 站点」这类仓库管理操作，"
-          echo "  这是刻意的安全边界。开启一次之后，后续所有部署都会用默认令牌自动完成。"
-          echo ""
-          echo "开启入口：https://github.com/${{ github.repository }}/settings/pages"
-          exit 1
-
-      - name: 打包站点
-        uses: actions/upload-pages-artifact@v3
+      # 把 dist/ 推到 gh-pages 分支，由 GitHub Pages 直接发布。
+      #
+      # 为什么用「推送分支」而不是 actions/deploy-pages？
+      #   后者属于 Pages API 部署，要求仓库的 Pages 设置为 build_type=workflow；
+      #   而修改该设置属于仓库管理操作，Actions 自带的 GITHUB_TOKEN 没有这个权限。
+      #   推送 gh-pages 分支则只需要 contents: write，是纯 git 操作，全自动、零配置、
+      #   也不需要任何人进设置页。公共仓库推送该分支时 GitHub 会自动启用 Pages。
+      - name: 发布到 gh-pages 分支
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          path: dist
-
-      - name: 部署
-        id: deployment
-        uses: actions/deploy-pages@v4
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          publish_branch: gh-pages
+          force_orphan: true          # 只保留一次提交，避免分支历史无限膨胀
+          user_name: 'github-actions[bot]'
+          user_email: '41898282+github-actions[bot]@users.noreply.github.com'
+          commit_message: 'deploy: ${{ github.event.repository.name }} 站点 ${{ github.run_number }}'

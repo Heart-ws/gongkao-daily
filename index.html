@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#F7F3EB">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="公考日报">
+<meta name="description" content="每日十条时政要闻 + 十条公考常识，服务公务员考试每日背诵与备考。">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png">
+<title>公考日报 · 每日时政与常识</title>
+<style>
+/* ==================== 设计令牌 ==================== */
+:root{
+  --paper:#F7F3EB;          /* 宣纸米白 */
+  --paper-2:#FFFDF8;        /* 卡片纸面 */
+  --paper-3:#F0EADE;        /* 次级底 */
+  --ink:#23282E;            /* 墨色正文 */
+  --ink-2:#5A6169;          /* 次级文字 */
+  --ink-3:#8C939B;          /* 弱化文字 */
+  --line:#E3DCCC;           /* 分隔线 */
+  --line-2:#EFE9DD;
+  --indigo:#1C3A5E;         /* 靛青主色 */
+  --indigo-2:#2E5680;
+  --indigo-soft:#E7EDF4;
+  --cinnabar:#B2342C;       /* 朱砂 */
+  --cinnabar-soft:#F7E6E3;
+  --gold:#A8843C;
+  --gold-soft:#F5EEDD;
+  --teal:#256B60;  --teal-soft:#E2F0ED;
+  --plum:#7A4B6E;  --plum-soft:#F2E8EF;
+  --shadow:0 1px 2px rgba(35,40,46,.05), 0 6px 20px rgba(35,40,46,.06);
+  --shadow-sm:0 1px 2px rgba(35,40,46,.06);
+  --r:14px; --r-sm:9px;
+  --maxw:940px;
+  --serif:"Noto Serif SC","Source Han Serif SC","Songti SC","STSong","SimSun",Georgia,serif;
+  --sans:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Segoe UI",Roboto,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+html{color-scheme:light}
+body{
+  background:var(--paper);color:var(--ink);
+  font-family:var(--sans);font-size:15px;line-height:1.72;
+  -webkit-font-smoothing:antialiased;
+  padding-bottom:env(safe-area-inset-bottom);
+}
+/* 纸纹：极淡的斜向纹理，纯 CSS 无外部资源 */
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;
+  background-image:
+    repeating-linear-gradient(45deg,rgba(28,58,94,.014) 0 1px,transparent 1px 7px),
+    repeating-linear-gradient(-45deg,rgba(178,52,44,.012) 0 1px,transparent 1px 9px);
+}
+.app{position:relative;z-index:1;max-width:var(--maxw);margin:0 auto;padding:0 16px}
+button{font-family:inherit;font-size:inherit;cursor:pointer;border:none;background:none;color:inherit}
+:focus-visible{outline:2px solid var(--indigo-2);outline-offset:2px;border-radius:4px}
+
+/* ==================== 页头 ==================== */
+.hd{padding:22px 0 0;position:sticky;top:0;z-index:30;
+  background:linear-gradient(180deg,var(--paper) 0%,var(--paper) 84%,rgba(247,243,235,.86) 100%);
+  backdrop-filter:saturate(140%) blur(6px);-webkit-backdrop-filter:saturate(140%) blur(6px);
+  margin:0 -16px;padding-left:16px;padding-right:16px;
+}
+.hd-top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:11px}
+.seal{
+  width:42px;height:42px;flex:0 0 42px;border-radius:10px;
+  background:var(--indigo);color:#fff;display:grid;place-items:center;
+  font-family:var(--serif);font-size:23px;font-weight:700;letter-spacing:1px;
+  box-shadow:var(--shadow-sm);
+}
+.brand h1{font-family:var(--serif);font-size:21px;margin:0;letter-spacing:.5px;font-weight:700}
+.brand p{margin:1px 0 0;font-size:12px;color:var(--ink-3);letter-spacing:.4px}
+.hd-meta{display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding-top:3px}
+.date-nav{display:flex;align-items:center;background:var(--paper-2);border:1px solid var(--line);border-radius:10px;overflow:hidden;box-shadow:var(--shadow-sm)}
+.date-nav button{width:30px;height:32px;color:var(--ink-2);font-size:16px;line-height:1;display:grid;place-items:center}
+.date-nav button:hover:not(:disabled){background:var(--paper-3);color:var(--indigo)}
+.date-nav button:disabled{opacity:.28;cursor:not-allowed}
+.date-nav select{
+  border:none;background:transparent;font-family:var(--serif);font-size:14px;font-weight:600;
+  color:var(--ink);padding:0 4px;height:32px;appearance:none;text-align:center;cursor:pointer;
+  border-left:1px solid var(--line-2);border-right:1px solid var(--line-2);
+}
+.badge{
+  display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;
+  padding:5px 10px;border-radius:999px;background:var(--teal-soft);color:var(--teal);
+  border:1px solid rgba(37,107,96,.16);white-space:nowrap;
+}
+.badge b{font-weight:700}
+.badge.warn{background:var(--gold-soft);color:#8A6A28;border-color:rgba(168,132,60,.2)}
+.badge.err{background:var(--cinnabar-soft);color:var(--cinnabar);border-color:rgba(178,52,44,.2)}
+.badge .live{width:6px;height:6px;border-radius:50%;background:currentColor;animation:pulse 2.4s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* 进度条 */
+.stats{display:flex;align-items:center;gap:16px;margin:14px 0 0;flex-wrap:wrap}
+.stat{flex:1 1 190px;min-width:160px}
+.stat-h{display:flex;justify-content:space-between;font-size:12px;color:var(--ink-2);margin-bottom:5px;font-weight:600}
+.stat-h em{font-style:normal;color:var(--ink-3);font-weight:500}
+.bar{height:7px;background:#E9E2D2;border-radius:99px;overflow:hidden;box-shadow:inset 0 1px 2px rgba(35,40,46,.07)}
+.bar i{display:block;height:100%;border-radius:99px;background:var(--indigo);transition:width .45s cubic-bezier(.4,0,.2,1)}
+.bar.g i{background:var(--teal)}
+.stat-note{font-size:12px;color:var(--ink-3);flex:1 1 100%;margin:-6px 0 0}
+
+/* 标签页 */
+.tabs{display:flex;gap:2px;margin:16px 0 0;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{
+  position:relative;padding:11px 15px 12px;font-size:14px;font-weight:600;color:var(--ink-3);
+  white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .18s;
+}
+.tab:hover{color:var(--ink-2)}
+.tab.on{color:var(--indigo);border-bottom-color:var(--indigo)}
+.tab .sm{display:none}
+.tab .cnt{font-size:11px;font-weight:700;opacity:.7;margin-left:3px}
+
+/* ==================== 布局 ==================== */
+main{padding:20px 0 40px}
+.pane{display:none}
+.pane.on{display:block;animation:fade .26s ease}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+.sect-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.sect-title{font-family:var(--serif);font-size:16px;font-weight:700;margin:0;display:flex;align-items:center;gap:8px}
+.sect-title::before{content:"";width:3px;height:15px;border-radius:2px;background:var(--cinnabar)}
+.sect-title small{font-family:var(--sans);font-size:12px;color:var(--ink-3);font-weight:500;letter-spacing:.3px}
+.acts{display:flex;gap:7px;flex-wrap:wrap}
+.btn{
+  display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:8px;
+  border:1px solid var(--line);background:var(--paper-2);font-size:12.5px;font-weight:600;
+  color:var(--ink-2);box-shadow:var(--shadow-sm);transition:.16s;
+}
+.btn:hover{border-color:var(--indigo-2);color:var(--indigo);transform:translateY(-1px)}
+.btn:active{transform:none}
+.btn.pri{background:var(--indigo);border-color:var(--indigo);color:#fff}
+.btn.pri:hover{background:var(--indigo-2);border-color:var(--indigo-2);color:#fff}
+
+/* ==================== 卡片 ==================== */
+.list{display:flex;flex-direction:column;gap:11px}
+.card{
+  background:var(--paper-2);border:1px solid var(--line-2);border-radius:var(--r);
+  padding:15px 16px 13px;box-shadow:var(--shadow);position:relative;transition:border-color .2s,box-shadow .2s;
+}
+.card:hover{border-color:var(--line);box-shadow:0 2px 4px rgba(35,40,46,.05),0 10px 26px rgba(35,40,46,.07)}
+.card.done{background:#FBF9F4;border-color:var(--line-2)}
+.card.done .c-title,.card.done .q-text{color:var(--ink-2)}
+.c-top{display:flex;align-items:flex-start;gap:10px}
+.c-no{
+  flex:0 0 24px;width:24px;height:24px;border-radius:7px;background:var(--indigo-soft);color:var(--indigo);
+  font-size:12px;font-weight:800;display:grid;place-items:center;font-family:var(--serif);margin-top:2px;
+}
+.card.n .c-no{background:var(--cinnabar-soft);color:var(--cinnabar)}
+.c-body{flex:1;min-width:0}
+.c-title{font-family:var(--serif);font-size:15.5px;font-weight:700;line-height:1.55;margin:0 0 6px;letter-spacing:.2px}
+.c-sum{margin:0;font-size:14px;color:var(--ink-2);line-height:1.78}
+.c-sum.clamp{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.c-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px;padding-top:9px;border-top:1px dashed var(--line-2)}
+.tag{font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:5px;letter-spacing:.3px}
+.src{font-size:11.5px;color:var(--ink-3);display:inline-flex;align-items:center;gap:4px}
+.c-acts{margin-left:auto;display:flex;gap:4px}
+.ico{
+  width:28px;height:28px;border-radius:7px;display:grid;place-items:center;color:var(--ink-3);
+  border:1px solid transparent;transition:.16s;font-size:14px;
+}
+.ico:hover{background:var(--paper-3);color:var(--ink);border-color:var(--line)}
+.ico.on{color:var(--gold);background:var(--gold-soft)}
+.ico.ok{color:var(--teal);background:var(--teal-soft)}
+
+/* 常识卡片 */
+.q-row{display:flex;gap:10px;align-items:flex-start}
+.q-text{font-family:var(--serif);font-size:15.5px;font-weight:700;line-height:1.62;margin:0;flex:1}
+.q-cat{flex:0 0 auto;font-size:11px;font-weight:700;padding:2px 8px;border-radius:5px;margin-top:3px}
+.ans{
+  margin-top:11px;padding:11px 13px;border-radius:10px;background:var(--indigo-soft);
+  border-left:3px solid var(--indigo);font-size:14px;line-height:1.8;color:var(--ink);
+}
+.ans[hidden]{display:none}
+.ans .lab{font-weight:800;color:var(--indigo);font-size:12px;letter-spacing:.6px;display:block;margin-bottom:3px}
+.tip{
+  margin-top:8px;padding:8px 11px;border-radius:8px;background:var(--gold-soft);
+  border-left:3px solid var(--gold);font-size:13px;color:#6E5620;line-height:1.72;
+}
+.tip .lab{font-weight:800;color:var(--gold);font-size:12px;letter-spacing:.4px}
+
+/* 空状态 */
+.empty{text-align:center;padding:52px 20px;color:var(--ink-3)}
+.empty .big{font-size:34px;margin-bottom:10px;opacity:.5}
+.empty h3{font-family:var(--serif);font-size:16px;color:var(--ink-2);margin:0 0 6px}
+.empty p{margin:0;font-size:13.5px;line-height:1.7}
+
+/* 归档 */
+.arch{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:10px}
+.arch-item{
+  background:var(--paper-2);border:1px solid var(--line-2);border-radius:var(--r-sm);
+  padding:12px 13px;text-align:left;box-shadow:var(--shadow-sm);transition:.18s;
+}
+.arch-item:hover{border-color:var(--indigo-2);transform:translateY(-2px)}
+.arch-item.on{border-color:var(--indigo);background:var(--indigo-soft)}
+.arch-item b{font-family:var(--serif);font-size:14.5px;display:block;margin-bottom:3px}
+.arch-item span{font-size:11.5px;color:var(--ink-3)}
+
+/* 设置 */
+.panel{background:var(--paper-2);border:1px solid var(--line-2);border-radius:var(--r);padding:16px 17px;box-shadow:var(--shadow);margin-bottom:12px}
+.panel h3{font-family:var(--serif);font-size:15px;margin:0 0 4px}
+.panel p{margin:0 0 12px;font-size:13.5px;color:var(--ink-2);line-height:1.75}
+.panel .row{display:flex;gap:8px;flex-wrap:wrap}
+.sw{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0;border-top:1px dashed var(--line-2)}
+.sw:first-of-type{border-top:none}
+.sw .txt b{display:block;font-size:14px;font-weight:600}
+.sw .txt span{font-size:12.5px;color:var(--ink-3)}
+.toggle{width:44px;height:25px;border-radius:99px;background:var(--paper-3);border:1px solid var(--line);position:relative;flex:0 0 44px;transition:.2s}
+.toggle::after{content:"";position:absolute;top:2px;left:2px;width:19px;height:19px;border-radius:50%;background:#fff;box-shadow:var(--shadow-sm);transition:.2s}
+.toggle.on{background:var(--indigo);border-color:var(--indigo)}
+.toggle.on::after{transform:translateX(19px)}
+.note{font-size:12.5px;color:var(--ink-3);line-height:1.72;margin:10px 0 0}
+.note b{color:var(--ink-2)}
+.kbd{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11.5px;background:var(--paper-3);padding:1px 5px;border-radius:4px;border:1px solid var(--line)}
+
+/* 提示条 */
+.notice{
+  display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border-radius:var(--r-sm);
+  background:var(--gold-soft);border:1px solid rgba(168,132,60,.22);margin-bottom:14px;font-size:13.5px;
+  color:#6E5620;line-height:1.7;
+}
+.notice .btn{margin-top:8px}
+.notice.err{background:var(--cinnabar-soft);border-color:rgba(178,52,44,.2);color:#8A2820}
+
+/* 页脚 */
+footer{padding:26px 0 34px;border-top:1px solid var(--line-2);margin-top:8px;
+  font-size:12.5px;color:var(--ink-3);line-height:1.85;text-align:center}
+footer b{color:var(--ink-2)}
+
+/* 吐司 */
+.toast{
+  position:fixed;left:50%;bottom:34px;transform:translate(-50%,14px);z-index:200;
+  background:var(--ink);color:#fff;padding:10px 18px;border-radius:99px;font-size:13px;font-weight:600;
+  box-shadow:0 8px 28px rgba(35,40,46,.3);opacity:0;pointer-events:none;transition:.26s;max-width:88vw;
+  text-align:center;
+}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+
+@media (max-width:600px){
+  body{font-size:14.5px}
+  .app{padding:0 12px}
+  .hd{margin:0 -12px;padding-left:12px;padding-right:12px}
+  .brand h1{font-size:19px}
+  .seal{width:38px;height:38px;flex-basis:38px;font-size:20px}
+  .hd-top{gap:10px}
+  .hd-meta{width:100%;justify-content:space-between}
+  .card{padding:13px 13px 11px}
+  .c-title,.q-text{font-size:15px}
+  .c-sum,.ans{font-size:13.5px}
+  .tabs{justify-content:space-between;overflow-x:visible}
+  .tab{padding:9px 4px 10px;font-size:13.5px;flex:1 1 auto;text-align:center}
+  .tab .lg{display:none}
+  .tab .sm{display:inline}
+  .arch{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+}
+@media print{
+  .hd,.tabs,.acts,footer,.toast,.ico{display:none!important}
+  .pane{display:block!important}
+  .card{break-inside:avoid;box-shadow:none}
+  body::before{display:none}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="hd">
+    <div class="hd-top">
+      <div class="brand">
+        <span class="seal">考</span>
+        <div>
+          <h1>公考日报</h1>
+          <p>每日时政要闻 · 公考常识</p>
+        </div>
+      </div>
+      <div class="hd-meta">
+        <div class="date-nav">
+          <button id="prevDay" title="前一天" aria-label="前一天">‹</button>
+          <select id="daySel" aria-label="选择日期"></select>
+          <button id="nextDay" title="后一天" aria-label="后一天">›</button>
+        </div>
+        <div class="badge" id="updBadge"><span class="live"></span><span>加载中…</span></div>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-h"><span>时政要闻</span><span><b id="nDone">0</b>/<span id="nTotal">10</span></span></div>
+        <div class="bar"><i id="nBar" style="width:0%"></i></div>
+      </div>
+      <div class="stat">
+        <div class="stat-h"><span>公考常识</span><span><b id="fDone">0</b>/<span id="fTotal">10</span></span></div>
+        <div class="bar g"><i id="fBar" style="width:0%"></i></div>
+      </div>
+      <p class="stat-note" id="cycleNote"></p>
+    </div>
+
+    <nav class="tabs" id="tabs">
+      <button class="tab on" data-tab="news"><span class="lg">时政要闻</span><span class="sm">时政</span><span class="cnt" id="tNews"></span></button>
+      <button class="tab" data-tab="facts"><span class="lg">公考常识</span><span class="sm">常识</span><span class="cnt" id="tFacts"></span></button>
+      <button class="tab" data-tab="fav"><span class="lg">我的收藏</span><span class="sm">收藏</span><span class="cnt" id="tFav"></span></button>
+      <button class="tab" data-tab="arch"><span class="lg">历史归档</span><span class="sm">归档</span></button>
+      <button class="tab" data-tab="set"><span class="lg">设置</span><span class="sm">设置</span></button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- 时政要闻 -->
+    <section class="pane on" id="pane-news">
+      <div class="sect-bar">
+        <h2 class="sect-title">时政要闻 <small id="newsDate"></small></h2>
+        <div class="acts">
+          <button class="btn" id="nAll">全部标记已读</button>
+          <button class="btn" id="nCopy">复制今日时政</button>
+        </div>
+      </div>
+      <div id="noticeNews"></div>
+      <div class="list" id="newsList"></div>
+    </section>
+
+    <!-- 公考常识 -->
+    <section class="pane" id="pane-facts">
+      <div class="sect-bar">
+        <h2 class="sect-title">公考常识 <small id="factsDate"></small></h2>
+        <div class="acts">
+          <button class="btn" id="fToggle">展开全部答案</button>
+          <button class="btn" id="fCopy">复制今日常识</button>
+        </div>
+      </div>
+      <div class="notice">
+        <div>题库按「记忆曲线」逐日轮换：先读问题、回忆答案，再点「看答案」核对。<b>每天 10 条，一轮 10 天覆盖全部考点。</b></div>
+      </div>
+      <div class="list" id="factsList"></div>
+    </section>
+
+    <!-- 收藏 -->
+    <section class="pane" id="pane-fav">
+      <div class="sect-bar">
+        <h2 class="sect-title">我的收藏 <small id="favCount"></small></h2>
+        <div class="acts">
+          <button class="btn" id="favExport">导出收藏（Markdown）</button>
+          <button class="btn" id="favClear">清空收藏</button>
+        </div>
+      </div>
+      <div class="list" id="favList"></div>
+    </section>
+
+    <!-- 归档 -->
+    <section class="pane" id="pane-arch">
+      <div class="sect-bar">
+        <h2 class="sect-title">历史归档 <small>点击可回看任意一期</small></h2>
+      </div>
+      <div class="notice" id="archNote"></div>
+      <div class="arch" id="archList"></div>
+    </section>
+
+    <!-- 设置 -->
+    <section class="pane" id="pane-set">
+      <div class="panel">
+        <h3>背诵偏好</h3>
+        <p>打开「默认隐藏答案」后，常识卡片会先只显示问题，方便主动回忆；点「看答案」再核对。</p>
+        <div class="sw">
+          <div class="txt"><b>默认隐藏答案</b><span>先回忆，再看答案</span></div>
+          <button class="toggle" id="swHide" role="switch" aria-label="默认隐藏答案"></button>
+        </div>
+        <div class="sw">
+          <div class="txt"><b>自动标记已读</b><span>展开答案即视为已背，自动打勾</span></div>
+          <button class="toggle" id="swAuto" role="switch" aria-label="自动标记已读"></button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>数据管理</h3>
+        <p>学习记录、收藏与偏好<b>只保存在这台设备的浏览器里</b>，不会上传。换设备、清理浏览器数据或使用无痕模式会丢失，建议每周导出一次备份。</p>
+        <div class="row">
+          <button class="btn pri" id="expJson">导出学习数据（JSON 备份）</button>
+          <button class="btn" id="impJson">导入备份</button>
+          <button class="btn" id="expAll">导出全部内容（Markdown）</button>
+        </div>
+        <input type="file" id="impFile" accept=".json,application/json" hidden>
+        <p class="note">
+          <b>导入说明：</b>选择此前导出的 JSON 备份文件，将<b>覆盖</b>当前设备上的记录。
+        </p>
+      </div>
+
+      <div class="panel">
+        <h3>内容来源与更新机制</h3>
+        <p>
+          <b>时政要闻</b>：由 <span class="kbd">scripts/fetch_daily.py</span> 每日自动抓取新华社、人民日报、中国政府网、央视新闻等权威来源，生成 <span class="kbd">data/日期.js</span>；抓取失败时可人工在 <span class="kbd">data/manual/日期.json</span> 中补录，保证不断更。<br>
+          <b>公考常识</b>：来自人工维护的固定题库 <span class="kbd">data/facts-pool.js</span>，按天自动轮换 10 条，考点不随时间失效，无需联网更新。<br>
+          <b>更新时点</b>：通过 GitHub Actions 定时任务，每天北京时间 <b>上午 8 点前后</b>自动抓取并发布；页面打开时会自动检查是否有更新。
+        </p>
+      </div>
+
+      <div class="panel">
+        <h3>装到手机上，像 App 一样用</h3>
+        <p>
+          <b>Android / Chrome：</b>打开本页 → 右上角 <span class="kbd">⋮</span> → 「添加到主屏幕」。<br>
+          <b>iPhone / iPad：</b>必须用 <b>Safari</b> 打开 → 底部「分享」按钮 → 「添加到主屏幕」。（微信内置浏览器不支持）<br>
+          <b>电脑：</b>Chrome / Edge 地址栏右侧会出现「安装」图标，点击即可独立窗口运行。
+        </p>
+      </div>
+
+      <div class="panel">
+        <h3>危险操作</h3>
+        <p>清空后本机的已读、已背与收藏记录将无法恢复，请务必先导出备份。</p>
+        <div class="row"><button class="btn" id="wipe" style="color:var(--cinnabar);border-color:rgba(178,52,44,.3)">清空全部学习数据</button></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <b>公考日报</b> · 时政要闻与公考常识每日自动汇总<br>
+    时政内容版权归原作者与发布机构所有，本页仅作个人学习备考整理之用 · 数据日期 <span id="footDate">—</span>
+  </footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================================================================
+ * 1. 常量与配置
+ * ================================================================ */
+var KEY = 'gk_daily_v1';
+var ANCHOR = '2026-01-01';      // 轮换周期起点（固定不变，保证每日取题稳定）
+var AUTO_HOUR = 8;              // 每日自动更新时点（北京时间上午 8 点）
+var CAP_PER_CAT = 3;            // 每日常识中同一分类最多几条
+
+var CAT_STYLE = {
+  '政治': { bg: 'var(--cinnabar-soft)', fg: 'var(--cinnabar)' },
+  '法律': { bg: 'var(--indigo-soft)',   fg: 'var(--indigo)' },
+  '经济': { bg: 'var(--gold-soft)',     fg: '#8A6A28' },
+  '历史': { bg: '#F1E9E0',              fg: '#7A5334' },
+  '科技': { bg: 'var(--teal-soft)',     fg: 'var(--teal)' },
+  '地理': { bg: '#E4F0E6',              fg: '#2F6B3B' },
+  '人文': { bg: 'var(--plum-soft)',     fg: 'var(--plum)' }
+};
+/* 标签配色：[前景色, 背景色] */
+var TAG_STYLE = {
+  '时政要闻': ['var(--cinnabar)', 'var(--cinnabar-soft)'],
+  '主题宣传': ['var(--cinnabar)', 'var(--cinnabar-soft)'],
+  '国际外交': ['var(--indigo)',   'var(--indigo-soft)'],
+  '政治建设': ['var(--indigo)',   'var(--indigo-soft)'],
+  '法治建设': ['var(--indigo)',   'var(--indigo-soft)'],
+  '海洋维权': ['var(--indigo)',   'var(--indigo-soft)'],
+  '经济金融': ['#8A6A28',         'var(--gold-soft)'],
+  '经济数据': ['#8A6A28',         'var(--gold-soft)'],
+  '对外开放': ['#8A6A28',         'var(--gold-soft)'],
+  '民生保障': ['var(--teal)',     'var(--teal-soft)'],
+  '民生就业': ['var(--teal)',     'var(--teal-soft)'],
+  '交通运输': ['var(--teal)',     'var(--teal-soft)'],
+  '科技教育': ['var(--teal)',     'var(--teal-soft)'],
+  '粮食安全': ['#7A5334',         '#F1E9E0'],
+  '人事任免': ['var(--plum)',     'var(--plum-soft)'],
+  '理论出版': ['var(--plum)',     'var(--plum-soft)']
+};
+var TAG_FALLBACK = ['var(--ink-2)', 'var(--paper-3)'];
+
+/* ================================================================
+ * 2. 纯工具函数
+ * ================================================================ */
+function $(s, r) { return (r || document).querySelector(s); }
+function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+function pad2(n) { return (n < 10 ? '0' : '') + n; }
+function todayStr(d) {
+  d = d || new Date();
+  return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+}
+function dayIndex(dateStr) {
+  // 用 UTC 零点做整除，避免夏令时/时区误差
+  return Math.floor(Date.parse(dateStr + 'T00:00:00Z') / 86400000);
+}
+function shiftDate(dateStr, delta) {
+  var d = new Date(Date.parse(dateStr + 'T00:00:00Z'));
+  d.setUTCDate(d.getUTCDate() + delta);
+  return d.toISOString().slice(0, 10);
+}
+function cnDate(dateStr) {
+  var p = String(dateStr).split('-');
+  return p[0] + '年' + (+p[1]) + '月' + (+p[2]) + '日';
+}
+function weekday(dateStr) {
+  return ['周日', '周一', '周二', '周三', '周四', '周五', '周六'][
+    new Date(Date.parse(dateStr + 'T00:00:00Z')).getUTCDay()
+  ];
+}
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    var t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+/* ================================================================
+ * 3. 业务引擎（纯函数，不碰 DOM —— 便于无头测试）
+ * ================================================================ */
+
+/** 用周期序号做确定性洗牌，保证同一天在同一次运行时取到同一批题 */
+function shuffleBy(arr, seed) {
+  var rnd = mulberry32(seed * 7919 + 13);
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(rnd() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+/** 按分类轮询交织：让任意连续的 per 条都自然覆盖多个分类 */
+function interleave(items, seed) {
+  var by = {}, order = [];
+  items.forEach(function (it) {
+    if (!by[it.cat]) { by[it.cat] = []; order.push(it.cat); }
+    by[it.cat].push(it);
+  });
+  order.forEach(function (c, i) { by[c] = shuffleBy(by[c], seed * 131 + i * 17 + c.length); });
+  var maxLen = 0;
+  order.forEach(function (c) { if (by[c].length > maxLen) maxLen = by[c].length; });
+  var out = [];
+  for (var r = 0; r < maxLen; r++) {
+    for (var j = 0; j < order.length; j++) if (by[order[j]][r]) out.push(by[order[j]][r]);
+  }
+  return out;
+}
+
+/** 分类封顶：同类不超过 cap 条；仅当条目数足以替换时才做取舍，避免出现重复项 */
+function pickBalanced(order, per, cap) {
+  if (order.length <= per) return order.slice();
+  var counts = {}, out = [], skip = [], i;
+  for (i = 0; i < order.length && out.length < per; i++) {
+    var it = order[i];
+    var c = counts[it.cat] || 0;
+    if (c >= cap) { skip.push(it); continue; }
+    counts[it.cat] = c + 1;
+    out.push(it);
+  }
+  for (i = 0; i < skip.length && out.length < per; i++) out.push(skip[i]);
+  return out;
+}
+
+/** 返回 {cycle, pos, len, items, total} —— 某一天应当背诵的 10 条常识
+ *  规则：题库按分类交织后，以 per 条为一片、len 片为一轮顺序推进；
+ *  每一轮用不同的确定性洗牌，做到「一轮之内不重复、一轮覆盖全部考点、跨轮顺序不同」。
+ */
+function factsFor(dateStr, pool, per, cap) {
+  if (!pool || !pool.length) return { cycle: 0, pos: 0, len: 1, items: [], total: 0 };
+  per = per || 10;
+  cap = cap || CAP_PER_CAT;
+  var n = pool.length;
+  /* 题库不足一天的量：整库返回，不做补足也不重复 */
+  if (n <= per) return { cycle: 0, pos: 0, len: 1, items: pool.slice(), total: n };
+  var len = Math.max(1, Math.floor(n / per));
+  var di = dayIndex(dateStr) - dayIndex(ANCHOR);
+  var cycle = Math.floor(di / len);
+  var pos = ((di % len) + len) % len;
+  var order = interleave(pool, cycle);
+  var items = pickBalanced(order.slice(pos * per, pos * per + per), per, cap);
+  return { cycle: cycle, pos: pos, len: len, items: items, total: n };
+}
+
+/** 时政条目补一个稳定 id（用于记录已读 / 收藏） */
+function withIds(day, dateStr) {
+  var list = (day && day.news) || [];
+  return list.map(function (n, i) {
+    return Object.assign({}, n, { id: dateStr + '#' + i, date: dateStr });
+  });
+}
+
+/** 合并排序后的可用日期列表（去重，倒序） */
+function sortDates(list) {
+  var seen = {}, out = [];
+  (list || []).forEach(function (d) {
+    if (d && !seen[d]) { seen[d] = 1; out.push(d); }
+  });
+  return out.sort(function (a, b) { return a < b ? 1 : a > b ? -1 : 0; });
+}
+
+/** 给定「今天」与可用日期，选出一个默认展示日期（≤ 今天的最新一期） */
+function pickDefaultDate(today, dates) {
+  var ds = sortDates(dates);
+  for (var i = 0; i < ds.length; i++) if (ds[i] <= today) return ds[i];
+  return ds.length ? ds[ds.length - 1] : today;
+}
+
+/** 是否应当提示「今日尚未更新」 */
+function needUpdateNotice(today, latest, now) {
+  if (!latest) return true;
+  if (latest >= today) return false;
+  return (now || new Date()).getHours() >= AUTO_HOUR;
+}
+
+/* 导出 ---------------------------------------------------------- */
+function newsToMd(list, dateStr) {
+  var out = '# 时政要闻 · ' + cnDate(dateStr) + '\n\n';
+  list.forEach(function (n, i) {
+    out += '## ' + (i + 1) + '. ' + n.title + '\n\n' + n.summary + '\n\n';
+    out += '- 来源：' + (n.source || '—') + (n.tag ? ' ｜ 分类：' + n.tag : '') + '\n';
+    if (n.url) out += '- 原文：' + n.url + '\n';
+    out += '\n';
+  });
+  return out;
+}
+function factsToMd(items, dateStr, info) {
+  var out = '# 公考常识 · ' + cnDate(dateStr) + '\n\n';
+  if (info) out += '> 轮换进度：第 ' + (info.cycle + 1) + ' 轮 · 第 ' + (info.pos + 1) + '/' + info.len + ' 天\n\n';
+  items.forEach(function (f, i) {
+    out += '**' + (i + 1) + '. [' + f.cat + '] ' + f.q + '**\n\n';
+    out += '答：' + f.a + '\n\n';
+    if (f.tip) out += '> 记忆提示：' + f.tip + '\n\n';
+  });
+  return out;
+}
+function favToMd(favs) {
+  var news = favs.filter(function (f) { return f.type === 'news'; });
+  var facts = favs.filter(function (f) { return f.type === 'fact'; });
+  var out = '# 我的收藏 · 公考日报\n\n共 ' + favs.length + ' 条（时政 ' + news.length + ' / 常识 ' + facts.length + '）\n\n';
+  if (news.length) {
+    out += '## 时政要闻\n\n';
+    news.forEach(function (f) { out += '- **' + f.title + '**（' + cnDate(f.date) + '）\n  ' + f.text + '\n  来源：' + (f.source || '—') + '\n'; });
+    out += '\n';
+  }
+  if (facts.length) {
+    out += '## 公考常识\n\n';
+    facts.forEach(function (f) { out += '- **[' + f.cat + '] ' + f.title + '**\n  ' + f.text + (f.tip ? '\n  提示：' + f.tip : '') + '\n'; });
+    out += '\n';
+  }
+  return out;
+}
+
+/* ================================================================
+ * 4. 状态层
+ * ================================================================ */
+function blankState() {
+  return { read: {}, recited: {}, fav: [], view: {}, settings: { hideAnswers: true, autoDone: true }, lastOpen: '' };
+}
+var S = blankState();
+
+function normalize(st) {
+  var b = blankState();
+  if (!st || typeof st !== 'object') return b;
+  b.read = st.read && typeof st.read === 'object' ? st.read : {};
+  b.recited = st.recited && typeof st.recited === 'object' ? st.recited : {};
+  b.fav = Array.isArray(st.fav) ? st.fav : [];
+  b.view = st.view && typeof st.view === 'object' ? st.view : {};
+  if (st.settings) {
+    b.settings.hideAnswers = st.settings.hideAnswers !== false;
+    b.settings.autoDone = st.settings.autoDone !== false;
+  }
+  b.lastOpen = st.lastOpen || '';
+  return b;
+}
+function load() {
+  try { return normalize(JSON.parse(localStorage.getItem(KEY) || 'null')); }
+  catch (e) { return blankState(); }
+}
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(S)); }
+  catch (e) { toast('保存失败：存储空间可能已满，请先在设置页导出备份'); }
+}
+
+/* ================================================================
+ * 5. 运行时数据与视图状态
+ * ================================================================ */
+var POOL = null;            // 常识题库
+var DATES = [];             // 可用日期（倒序）
+var DAYS = {};              // 已加载的日期 -> {date, news, ...}
+var TODAY = todayStr();
+var curDate = TODAY;
+var activeTab = 'news';
+var ansOpen = {};           // 常识答案展开状态：id -> 1（展开）/ 0（收起）；未记录则按设置默认
+
+/** 某条常识的答案是否展开（单一判定入口，保证渲染与交互一致） */
+function ansShown(id) {
+  var v = ansOpen[id];
+  if (v === 1) return true;
+  if (v === 0) return false;
+  return !S.settings.hideAnswers;
+}
+function setAllAns(val) {
+  factsInfoOf(curDate).items.forEach(function (f) { ansOpen[f.id] = val; });
+}
+function anyAnsShown() {
+  return factsInfoOf(curDate).items.some(function (f) { return ansShown(f.id); });
+}
+
+/* 按需注入脚本（classic script，file:// 下同样可用） */
+function loadScript(src) {
+  return new Promise(function (res) {
+    var s = document.createElement('script');
+    s.src = src;
+    s.onload = function () { res(true); };
+    s.onerror = function () { res(false); };
+    document.head.appendChild(s);
+  });
+}
+function bust() { return location.protocol.indexOf('http') === 0 ? ('?t=' + Date.now()) : ''; }
+
+function haveDate(d) { return !!(window.__DAILY__ && window.__DAILY__[d]); }
+function loadDate(d) {
+  if (haveDate(d)) { DAYS[d] = window.__DAILY__[d]; return Promise.resolve(true); }
+  return loadScript('data/' + d + '.js' + bust()).then(function (ok) {
+    if (ok && haveDate(d)) { DAYS[d] = window.__DAILY__[d]; return true; }
+    return false;
+  });
+}
+
+/* ================================================================
+ * 6. 渲染层
+ * ================================================================ */
+function toast(msg) {
+  var t = $('#toast');
+  t.textContent = msg;
+  t.classList.add('on');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(function () { t.classList.remove('on'); }, 2200);
+}
+
+function dayOf(d) { return DAYS[d] || { date: d, news: [] }; }
+function newsOf(d) { return withIds(dayOf(d), d); }
+function factsInfoOf(d) {
+  return factsFor(d, POOL ? POOL.items : [], POOL ? POOL.perDay : 10, CAP_PER_CAT);
+}
+
+function markDone(kind, dateStr, id) {
+  var bucket = kind === 'news' ? S.read : S.recited;
+  if (!bucket[dateStr]) bucket[dateStr] = [];
+  var i = bucket[dateStr].indexOf(id);
+  if (i < 0) bucket[dateStr].push(id);
+  save();
+}
+function toggleDone(kind, dateStr, id) {
+  var bucket = kind === 'news' ? S.read : S.recited;
+  if (!bucket[dateStr]) bucket[dateStr] = [];
+  var i = bucket[dateStr].indexOf(id);
+  if (i < 0) bucket[dateStr].push(id); else bucket[dateStr].splice(i, 1);
+  save();
+  return i < 0;
+}
+function isDone(kind, dateStr, id) {
+  var bucket = kind === 'news' ? S.read : S.recited;
+  return !!(bucket[dateStr] && bucket[dateStr].indexOf(id) >= 0);
+}
+
+function favKey(type, id) { return type + '::' + id; }
+function isFav(type, id) {
+  return S.fav.some(function (f) { return f.type === type && f.id === id; });
+}
+function toggleFav(item) {
+  var i = -1;
+  S.fav.forEach(function (f, k) { if (f.type === item.type && f.id === item.id) i = k; });
+  if (i >= 0) { S.fav.splice(i, 1); save(); return false; }
+  S.fav.unshift(item); save(); return true;
+}
+
+/* ---------- 徽标 / 头部 ---------- */
+function renderBadge() {
+  var el = $('#updBadge');
+  var latest = DATES[0];
+  var now = new Date();
+  if (!latest) {
+    el.className = 'badge err';
+    el.innerHTML = '<span>无可用数据</span>';
+    return;
+  }
+  if (latest >= TODAY) {
+    el.className = 'badge';
+    el.innerHTML = '<span class="live"></span><span>今日数据已就绪 · <b>' + latest.slice(5).replace('-', '/') + '</b></span>';
+  } else if (needUpdateNotice(TODAY, latest, now)) {
+    el.className = 'badge warn';
+    el.innerHTML = '<span>今日尚未更新 · 最新 <b>' + latest.slice(5).replace('-', '/') + '</b></span>';
+  } else {
+    el.className = 'badge warn';
+    el.innerHTML = '<span>上午 ' + AUTO_HOUR + ' 点自动更新 · 最新 <b>' + latest.slice(5).replace('-', '/') + '</b></span>';
+  }
+}
+
+function renderDateNav() {
+  var sel = $('#daySel');
+  var opts = DATES.slice();
+  if (opts.indexOf(curDate) < 0) opts.unshift(curDate);
+  opts = sortDates(opts);
+  sel.innerHTML = opts.map(function (d) {
+    var tag = d === TODAY ? '（今天）' : '';
+    return '<option value="' + d + '"' + (d === curDate ? ' selected' : '') + '>' +
+      cnDate(d).replace(/^\d{4}年/, '') + ' ' + weekday(d) + tag + '</option>';
+  }).join('');
+  var i = opts.indexOf(curDate);
+  $('#prevDay').disabled = i >= opts.length - 1;
+  $('#nextDay').disabled = i <= 0;
+  $('#footDate').textContent = cnDate(DATES[0] || curDate);
+}
+
+function renderStats() {
+  var news = newsOf(curDate);
+  var info = factsInfoOf(curDate);
+  var rd = (S.read[curDate] || []).length;
+  var rc = (S.recited[curDate] || []).length;
+  rd = Math.min(rd, news.length);
+  rc = Math.min(rc, info.items.length);
+  $('#nDone').textContent = rd; $('#nTotal').textContent = news.length || 10;
+  $('#fDone').textContent = rc; $('#fTotal').textContent = info.items.length || 10;
+  $('#nBar').style.width = (news.length ? rd / news.length * 100 : 0) + '%';
+  $('#fBar').style.width = (info.items.length ? rc / info.items.length * 100 : 0) + '%';
+  $('#tNews').textContent = news.length ? '(' + rd + '/' + news.length + ')' : '';
+  $('#tFacts').textContent = info.items.length ? '(' + rc + '/' + info.items.length + ')' : '';
+  $('#tFav').textContent = S.fav.length ? '(' + S.fav.length + ')' : '';
+  $('#cycleNote').textContent = info.total
+    ? '常识题库共 ' + info.total + ' 条 · 本轮第 ' + (info.pos + 1) + '/' + info.len + ' 天 · 每轮覆盖全部考点'
+    : '';
+}
+
+/* ---------- 时政 ---------- */
+function renderNews() {
+  var list = newsOf(curDate);
+  $('#newsDate').textContent = cnDate(curDate) + ' · ' + weekday(curDate);
+  var host = $('#newsList');
+  if (!list.length) {
+    host.innerHTML = '<div class="empty"><div class="big">[ ]</div><h3>这一期暂无时政数据</h3>' +
+      '<p>可能是抓取任务当天未成功运行。<br>可在 <code>data/manual/' + curDate + '.json</code> 中人工补录后重跑构建。</p></div>';
+    $('#noticeNews').innerHTML = '';
+    return;
+  }
+  $('#noticeNews').innerHTML = needUpdateNotice(TODAY, DATES[0], new Date())
+    ? '<div class="notice"><div><b>今日（' + cnDate(TODAY) + '）的时政数据尚未生成。</b>当前展示的是 ' + cnDate(curDate) +
+      ' 的内容。定时任务每天北京时间上午 ' + AUTO_HOUR + ' 点运行，若长时间未更新，可先手动阅读本期。<div><button class="btn" id="recheck">立即检查更新</button></div></div></div>'
+    : '';
+
+  host.innerHTML = list.map(function (n, i) {
+    var done = isDone('news', curDate, n.id);
+    var fav = isFav('news', n.id);
+    var tg = TAG_STYLE[n.tag] || TAG_FALLBACK;
+    return '' +
+      '<article class="card n' + (done ? ' done' : '') + '" data-kind="news" data-id="' + esc(n.id) + '">' +
+        '<div class="c-top">' +
+          '<span class="c-no">' + (i + 1) + '</span>' +
+          '<div class="c-body">' +
+            '<h3 class="c-title">' + esc(n.title) + '</h3>' +
+            '<p class="c-sum">' + esc(n.summary) + '</p>' +
+            '<div class="c-meta">' +
+              (n.tag ? '<span class="tag" style="color:' + tg[0] + ';background:' + tg[1] + '">' + esc(n.tag) + '</span>' : '') +
+              '<span class="src">来源：' + esc(n.source || '—') + '</span>' +
+              '<span class="c-acts">' +
+                '<button class="ico ' + (fav ? 'on' : '') + '" data-act="fav" title="收藏">★</button>' +
+                '<button class="ico ' + (done ? 'ok' : '') + '" data-act="done" title="标记已读">✓</button>' +
+              '</span>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</article>';
+  }).join('');
+}
+
+/* ---------- 常识 ---------- */
+function renderFacts() {
+  var info = factsInfoOf(curDate);
+  $('#factsDate').textContent = cnDate(curDate) + ' · 第 ' + (info.pos + 1) + '/' + info.len + ' 天';
+  var host = $('#factsList');
+  if (!info.items.length) {
+    host.innerHTML = '<div class="empty"><div class="big">[ ]</div><h3>题库尚未加载</h3><p>请检查 data/facts-pool.js 是否存在。</p></div>';
+    return;
+  }
+  host.innerHTML = info.items.map(function (f, i) {
+    var st = CAT_STYLE[f.cat] || { bg: 'var(--paper-3)', fg: 'var(--ink-2)' };
+    var done = isDone('fact', curDate, f.id);
+    var fav = isFav('fact', f.id);
+    var show = ansShown(f.id);
+    return '' +
+      '<article class="card' + (done ? ' done' : '') + '" data-kind="fact" data-id="' + esc(f.id) + '" data-cat="' + esc(f.cat) + '">' +
+        '<div class="q-row">' +
+          '<span class="c-no">' + (i + 1) + '</span>' +
+          '<p class="q-text">' + esc(f.q) + '</p>' +
+          '<span class="q-cat" style="color:' + st.fg + ';background:' + st.bg + '">' + esc(f.cat) + '</span>' +
+        '</div>' +
+        '<div class="ans" ' + (show ? '' : 'hidden') + '><span class="lab">答案</span>' + esc(f.a) +
+          (f.tip ? '<div class="tip"><span class="lab">记忆提示 </span>' + esc(f.tip) + '</div>' : '') +
+        '</div>' +
+        '<div class="c-meta">' +
+          '<button class="btn" data-act="reveal" style="padding:4px 11px">' + (show ? '收起答案' : '看答案') + '</button>' +
+          '<span class="c-acts">' +
+            '<button class="ico ' + (fav ? 'on' : '') + '" data-act="fav" title="收藏">★</button>' +
+            '<button class="ico ' + (done ? 'ok' : '') + '" data-act="done" title="标记已背">✓</button>' +
+          '</span>' +
+        '</div>' +
+      '</article>';
+  }).join('');
+  var allOpen = anyAnsShown();
+  $('#fToggle').textContent = allOpen ? '全部收起答案' : '展开全部答案';
+}
+
+/* ---------- 收藏 ---------- */
+function renderFav() {
+  var host = $('#favList');
+  $('#favCount').textContent = S.fav.length ? '共 ' + S.fav.length + ' 条' : '';
+  if (!S.fav.length) {
+    host.innerHTML = '<div class="empty"><div class="big">☆</div><h3>还没有收藏内容</h3>' +
+      '<p>在时政卡片或常识卡片上点「★」，就会收进这里，<br>方便跨天集中复习与导出。</p></div>';
+    return;
+  }
+  host.innerHTML = S.fav.map(function (f) {
+    var st = f.type === 'fact' ? (CAT_STYLE[f.cat] || { bg: 'var(--paper-3)', fg: 'var(--ink-2)' }) : null;
+    return '' +
+      '<article class="card" data-fav="' + esc(favKey(f.type, f.id)) + '">' +
+        '<div class="c-top">' +
+          '<span class="c-no">' + (f.type === 'fact' ? '常' : '政') + '</span>' +
+          '<div class="c-body">' +
+            '<h3 class="c-title">' + esc(f.title) + '</h3>' +
+            '<p class="c-sum">' + esc(f.text) + '</p>' +
+            (f.tip ? '<div class="tip" style="margin-top:8px"><span class="lab">记忆提示 </span>' + esc(f.tip) + '</div>' : '') +
+            '<div class="c-meta">' +
+              (st ? '<span class="tag" style="color:' + st.fg + ';background:' + st.bg + '">' + esc(f.cat) + '</span>' : '') +
+              '<span class="src">' + cnDate(f.date) + (f.source ? ' · ' + esc(f.source) : '') + '</span>' +
+              '<span class="c-acts"><button class="ico on" data-act="unfav" title="取消收藏">★</button></span>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</article>';
+  }).join('');
+}
+
+/* ---------- 归档 ---------- */
+function renderArch() {
+  var host = $('#archList');
+  $('#archNote').innerHTML = '系统每天北京时间上午 <b>' + AUTO_HOUR + ' 点</b>生成新一期，历史期数永久保留，' +
+    '随时可回看往期时政与常识。当前共 <b>' + DATES.length + '</b> 期。';
+  if (!DATES.length) {
+    host.innerHTML = '<div class="empty"><div class="big">[ ]</div><h3>暂无归档</h3><p>data/manifest.js 中还没有可用日期。</p></div>';
+    return;
+  }
+  host.innerHTML = DATES.map(function (d) {
+    var has = window.__DAILY__ && window.__DAILY__[d];
+    var n = has ? ((window.__DAILY__[d].news || []).length) : null;
+    return '<button class="arch-item' + (d === curDate ? ' on' : '') + '" data-date="' + d + '">' +
+      '<b>' + cnDate(d).replace(/^\d{4}年/, '') + '</b>' +
+      '<span>' + weekday(d) + (d === TODAY ? ' · 今天' : '') + (n == null ? ' · 点击加载' : ' · ' + n + ' 条时政') + '</span>' +
+      '</button>';
+  }).join('');
+}
+
+/* ---------- 设置 ---------- */
+function renderSet() {
+  $('#swHide').classList.toggle('on', !!S.settings.hideAnswers);
+  $('#swAuto').classList.toggle('on', !!S.settings.autoDone);
+}
+
+/* ---------- 总渲染 ---------- */
+function renderAll() {
+  $$('.pane').forEach(function (p) {
+    var on = p.id === 'pane-' + activeTab;
+    if (on !== p.classList.contains('on')) p.classList.toggle('on', on);
+  });
+  $$('.tab').forEach(function (t) {
+    var on = t.getAttribute('data-tab') === activeTab;
+    if (on !== t.classList.contains('on')) t.classList.toggle('on', on);
+  });
+  renderBadge();
+  renderDateNav();
+  renderStats();
+  renderNews();
+  renderFacts();
+  renderFav();
+  renderArch();
+  renderSet();
+}
+
+/* ================================================================
+ * 7. 事件绑定（全部委托，渲染后节点替换也不失联）
+ * ================================================================ */
+function bind() {
+  $('#tabs').addEventListener('click', function (e) {
+    var t = e.target.closest('.tab');
+    if (!t) return;
+    activeTab = t.getAttribute('data-tab');
+    renderAll();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  /* 时政列表 */
+  $('#newsList').addEventListener('click', function (e) {
+    var card = e.target.closest('.card');
+    if (!card) return;
+    var id = card.getAttribute('data-id');
+    var act = e.target.closest('[data-act]');
+    var n = newsOf(curDate).filter(function (x) { return x.id === id; })[0];
+    if (!n) return;
+    if (act && act.getAttribute('data-act') === 'fav') {
+      var on = toggleFav({ type: 'news', id: id, date: curDate, title: n.title, text: n.summary, source: n.source, cat: n.tag, tip: '' });
+      toast(on ? '已收藏' : '已取消收藏');
+      renderAll(); return;
+    }
+    if (act && act.getAttribute('data-act') === 'done') {
+      var ok = toggleDone('news', curDate, id);
+      toast(ok ? '已标记已读' : '已取消标记');
+      renderAll(); return;
+    }
+    // 点击卡片正文 = 已读
+    toggleDone('news', curDate, id);
+    renderAll();
+  });
+
+  /* 常识列表 */
+  $('#factsList').addEventListener('click', function (e) {
+    var card = e.target.closest('.card');
+    if (!card) return;
+    var id = card.getAttribute('data-id');
+    var act = e.target.closest('[data-act]');
+    var action = act ? act.getAttribute('data-act') : '';
+    var f = factsInfoOf(curDate).items.filter(function (x) { return x.id === id; })[0];
+    if (!f) return;
+
+    if (action === 'fav') {
+      var fav = !isFav('fact', id);
+      toggleFav({ type: 'fact', id: id, date: curDate, title: f.q, text: f.a, source: '', cat: f.cat, tip: f.tip || '' });
+      toast(fav ? '已收藏' : '已取消收藏'); renderAll(); return;
+    }
+    if (action === 'done') {
+      var ok = toggleDone('fact', curDate, id);
+      toast(ok ? '已标记已背' : '已取消标记'); renderAll(); return;
+    }
+    // 展开 / 收起答案（点击卡片任意处也可）
+    var wasShown = ansShown(id);
+    ansOpen[id] = wasShown ? 0 : 1;
+    if (!wasShown && S.settings.autoDone) markDone('fact', curDate, id);
+    renderAll();
+  });
+
+  /* 收藏列表 */
+  $('#favList').addEventListener('click', function (e) {
+    var act = e.target.closest('[data-act]');
+    if (!act || act.getAttribute('data-act') !== 'unfav') return;
+    var card = e.target.closest('[data-fav]');
+    var k = card.getAttribute('data-fav');
+    S.fav = S.fav.filter(function (f) { return favKey(f.type, f.id) !== k; });
+    save(); toast('已取消收藏'); renderAll();
+  });
+
+  /* 归档：懒加载某一天 */
+  $('#archList').addEventListener('click', function (e) {
+    var b = e.target.closest('.arch-item');
+    if (!b) return;
+    var d = b.getAttribute('data-date');
+    ansOpen = {};
+    loadDate(d).then(function () {
+      curDate = d; activeTab = 'news'; S.view.tab = activeTab;
+      renderAll();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+
+  /* 日期切换 */
+  $('#daySel').addEventListener('change', function (e) {
+    ansOpen = {};
+    var d = e.target.value;
+    loadDate(d).then(function () { curDate = d; renderAll(); });
+  });
+  function step(delta) {
+    var opts = sortDates(DATES.indexOf(curDate) < 0 ? DATES.concat([curDate]) : DATES).slice().reverse();
+    var i = opts.indexOf(curDate) + delta;
+    if (i < 0 || i >= opts.length) return;
+    ansOpen = {};
+    loadDate(opts[i]).then(function () { curDate = opts[i]; renderAll(); });
+  }
+  $('#prevDay').addEventListener('click', function () { step(1); });
+  $('#nextDay').addEventListener('click', function () { step(-1); });
+
+  /* 头部按钮 */
+  document.addEventListener('click', function (e) {
+    if (e.target.id === 'recheck' || e.target.closest('#recheck')) { checkUpdate(true); return; }
+  });
+
+  $('#nAll').addEventListener('click', function () {
+    var list = newsOf(curDate);
+    if (!S.read[curDate]) S.read[curDate] = [];
+    list.forEach(function (n) { if (S.read[curDate].indexOf(n.id) < 0) S.read[curDate].push(n.id); });
+    save(); toast('本期 ' + list.length + ' 条已标记已读'); renderAll();
+  });
+  $('#fToggle').addEventListener('click', function () {
+    var allOpen = anyAnsShown();
+    if (allOpen) { ansOpen = {}; S.settings.hideAnswers = true; }
+    else { setAllAns(1); }
+    save(); renderAll();
+  });
+
+  /* 复制 / 导出 */
+  function copy(text, okMsg) {
+    var done = function () { toast(okMsg); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, function () { fallback(); });
+    } else fallback();
+    function fallback() {
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); done(); } catch (err) { toast('复制失败，请改用导出'); }
+      document.body.removeChild(ta);
+    }
+  }
+  function download(name, text) {
+    try {
+      var blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob); a.download = name;
+      document.body.appendChild(a); a.click();
+      setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 400);
+      toast('已导出 ' + name);
+    } catch (e) { toast('导出失败，请检查浏览器权限'); }
+  }
+  $('#nCopy').addEventListener('click', function () {
+    copy(newsToMd(newsOf(curDate), curDate), '今日时政已复制到剪贴板');
+  });
+  $('#fCopy').addEventListener('click', function () {
+    var info = factsInfoOf(curDate);
+    copy(factsToMd(info.items, curDate, info), '今日常识已复制到剪贴板');
+  });
+
+  /* 收藏页 */
+  $('#favExport').addEventListener('click', function () {
+    if (!S.fav.length) { toast('还没有收藏内容'); return; }
+    download('公考日报-我的收藏.md', favToMd(S.fav));
+  });
+  $('#favClear').addEventListener('click', function () {
+    if (!S.fav.length) { toast('收藏夹已是空的'); return; }
+    if (!confirm('确定清空全部 ' + S.fav.length + ' 条收藏吗？此操作不可撤销。')) return;
+    S.fav = []; save(); toast('收藏已清空'); renderAll();
+  });
+
+  /* 设置 */
+  $('#swHide').addEventListener('click', function () {
+    S.settings.hideAnswers = !S.settings.hideAnswers;
+    ansOpen = {};
+    save(); renderAll();
+    toast(S.settings.hideAnswers ? '默认隐藏答案：先回忆再看' : '默认展开答案');
+  });
+  $('#swAuto').addEventListener('click', function () {
+    S.settings.autoDone = !S.settings.autoDone; save(); renderAll();
+    toast(S.settings.autoDone ? '已开启自动标记' : '已关闭自动标记');
+  });
+  $('#expJson').addEventListener('click', function () {
+    download('公考日报-学习数据-' + TODAY + '.json', JSON.stringify(S, null, 2));
+  });
+  $('#expAll').addEventListener('click', function () {
+    var info = factsInfoOf(curDate);
+    var md = newsToMd(newsOf(curDate), curDate) + '\n\n---\n\n' + factsToMd(info.items, curDate, info) + '\n\n---\n\n' + favToMd(S.fav);
+    download('公考日报-' + curDate + '.md', md);
+  });
+  $('#impJson').addEventListener('click', function () { $('#impFile').click(); });
+  $('#impFile').addEventListener('change', function (e) {
+    var f = e.target.files && e.target.files[0];
+    if (!f) return;
+    var fr = new FileReader();
+    fr.onload = function () {
+      if (!confirm('导入将覆盖当前设备上的全部学习记录与收藏，确定继续吗？')) { e.target.value = ''; return; }
+      try {
+        S = normalize(JSON.parse(fr.result));
+        save(); toast('导入成功'); renderAll();
+      } catch (err) { toast('导入失败：文件不是有效的 JSON 备份'); }
+      e.target.value = '';
+    };
+    fr.readAsText(f);
+  });
+  $('#wipe').addEventListener('click', function () {
+    if (!confirm('将清空已读、已背、收藏与偏好设置，且无法恢复。确定继续？')) return;
+    if (!confirm('再次确认：真的要清空全部学习数据吗？建议先导出备份。')) return;
+    S = blankState(); save(); toast('已清空，重新开始'); renderAll();
+  });
+
+  /* 键盘：左右切换日期 */
+  document.addEventListener('keydown', function (e) {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+    if (e.key === 'ArrowLeft') step(-1);
+    if (e.key === 'ArrowRight') step(1);
+  });
+}
+
+/* ================================================================
+ * 8. 更新检查
+ * ================================================================ */
+var checking = false;
+function checkUpdate(manual) {
+  if (checking) return;
+  checking = true;
+  if (manual) toast('正在检查更新…');
+  fetchPlus('data/manifest.js').then(function (txt) {
+    var m = txt.match(/dates\s*:\s*\[([^\]]*)\]/);
+    var dates = m ? m[1].split(',').map(function (s) { return s.replace(/["'\s]/g, ''); }).filter(Boolean) : [];
+    var newest = sortDates(dates)[0];
+    checking = false;
+    if (!newest) { if (manual) toast('未获取到更新信息'); return; }
+    if (DATES.indexOf(newest) < 0) {
+      DATES = sortDates(DATES.concat(dates));
+      loadDate(newest).then(function () {
+        if (!S.view.pinned || S.view.pinned === curDate) curDate = newest;
+        renderAll();
+        if (manual) toast('已更新到 ' + cnDate(newest));
+      });
+    } else if (manual) {
+      toast(newest >= TODAY ? '已是最新（' + cnDate(newest) + '）' : '最新一期为 ' + cnDate(newest));
+    }
+  }).catch(function () { checking = false; if (manual) toast('检查失败，请稍后再试'); });
+}
+function fetchPlus(url) {
+  return fetch(url + '?t=' + Date.now(), { cache: 'no-store' }).then(function (r) {
+    if (!r.ok) throw new Error('http ' + r.status);
+    return r.text();
+  });
+}
+
+/* ================================================================
+ * 9. 启动
+ * ================================================================ */
+function readManifestFromScript() {
+  // 离线兜底：从已加载的 __DATA_INDEX__ 或已注入的 __DAILY__ 里推日期
+  var ds = [];
+  if (window.__DATA_INDEX__ && window.__DATA_INDEX__.dates) ds = ds.concat(window.__DATA_INDEX__.dates);
+  if (window.__DAILY__) Object.keys(window.__DAILY__).forEach(function (d) { ds.push(d); });
+  return sortDates(ds);
+}
+
+function boot() {
+  S = load();
+  var b = bust();
+  loadScript('data/manifest.js' + b)
+    .then(function () { return loadScript('data/facts-pool.js' + b); })
+    .then(function () {
+      POOL = window.__FACTS_POOL__ || { items: [], perDay: 10 };
+      DATES = sortDates((window.__DATA_INDEX__ && window.__DATA_INDEX__.dates) || []);
+      if (!DATES.length) DATES = [TODAY, shiftDate(TODAY, -1)];
+      curDate = pickDefaultDate(TODAY, DATES);
+      return loadDate(curDate);
+    })
+    .then(function (ok) {
+      if (!ok) {
+        // 兜底：逐一尝试近 7 天
+        var tries = [];
+        for (var i = 0; i < 7; i++) tries.push(shiftDate(TODAY, -i));
+        return tries.reduce(function (p, d) {
+          return p.then(function (found) { return found ? found : loadDate(d).then(function (r) { return r ? d : null; }); });
+        }, Promise.resolve(null)).then(function (d) { if (d) curDate = d; });
+      }
+    })
+    .then(function () {
+      DATES = sortDates(DATES.concat(Object.keys(DAYS)));
+      if (!DATES.length) DATES = Object.keys(DAYS).length ? sortDates(Object.keys(DAYS)) : [TODAY];
+      S.lastOpen = TODAY; S.view.pinned = curDate; save();
+      bind();
+      renderAll();
+      // 联网环境下自动检查是否有新一期
+      if (location.protocol.indexOf('http') === 0) {
+        setTimeout(function () { checkUpdate(false); }, 1200);
+      }
+      document.addEventListener('visibilitychange', function () {
+        if (!document.hidden && location.protocol.indexOf('http') === 0) checkUpdate(false);
+      });
+    });
+}
+
+/* Service Worker（仅 http/https 下注册，file:// 下自动跳过） */
+if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('sw.js').catch(function () { /* 离线仍可用，忽略 */ });
+  });
+}
+
+boot();
+</script>
+</body>
+</html>
